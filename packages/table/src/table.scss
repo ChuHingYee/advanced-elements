@@ -1,0 +1,40 @@
+.table {
+  position: relative;
+
+  &-main {
+    margin-bottom: 10px;
+  }
+
+  &-page {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 40px;
+    background: #fff;
+    &__sticky {
+      position: sticky;
+      bottom: 0;
+      z-index: 8;
+    }
+  }
+  &-manual {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 40px;
+    &__btn {
+      width: 220px;
+      height: 32px;
+      color: #606266;
+      font-size: 12px;
+      line-height: 32px;
+      text-align: center;
+      background: #fff;
+      border: 1px solid #dcdfe6;
+      border-radius: 3px;
+    }
+    ::v-deep .el-button {
+      width: 220px;
+    }
+  }
+}
