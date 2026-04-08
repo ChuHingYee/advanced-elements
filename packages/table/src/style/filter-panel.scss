@@ -1,0 +1,125 @@
+@use 'element-plus/theme-chalk/src/mixins/config.scss' as *;
+@use 'ep-classes' as ep;
+// <zh/> 构建期命名空间单点：EP 的 $namespace 被本包 $ep-namespace 覆盖，本文件内插值均跟随（默认 el，覆盖见 ep-classes 文件头） | <en/> Build-time namespace single-source: EP $namespace is overridden by our $ep-namespace; all interpolations in this file follow (default el, see the ep-classes header for overrides)
+$namespace: ep.$ep-namespace;
+@use 'element-plus/theme-chalk/src/mixins/function.scss' as *;
+
+.adv-table {
+  /**
+   * 筛选面板专属样式
+   * Filter panel dedicated styles
+   *
+   * 布局/动画由 side-panel.scss 的 adv-table-side-panel 统一管理
+   * Layout/animation is managed centrally by adv-table-side-panel in side-panel.scss
+   */
+  .adv-table-filter-side-panel {
+    &__item {
+      padding: 8px 12px 12px;
+      border-bottom: 1px solid var(--adv-table-side-panel-border-color);
+    }
+
+    &__item-title {
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: #{getCssVarWithDefault('text-color-regular', #606266)};
+
+      &--active {
+        color: #{getCssVarWithDefault('color-primary', #409eff)};
+      }
+    }
+
+    /* ElCollapse 覆盖：移除边框，水平 padding 由 body 统一提供 */
+    .#{$namespace}-collapse {
+      border: none;
+    }
+
+    .#{$namespace}-collapse-item__header {
+      padding: 8px 0;
+      font-size: 13px;
+      font-weight: 500;
+      color: #{getCssVarWithDefault('text-color-regular', #606266)};
+      border-bottom: 1px solid var(--adv-table-side-panel-border-color);
+    }
+
+    .#{$namespace}-collapse-item__wrap {
+      padding: 8px 0 12px;
+
+      /* 筛选表单元素统一宽度 */
+      .#{$namespace}-input,
+      .#{$namespace}-select,
+      .#{$namespace}-input-number,
+      .#{$namespace}-date-editor {
+        width: 100%;
+        max-width: 260px;
+      }
+    }
+
+    .#{$namespace}-collapse-item__arrow {
+      font-size: 12px;
+    }
+  }
+
+  /* 侧面板触发按钮组 | Side panel trigger button group */
+  .adv-table__side-buttons {
+    --adv-table-side-button-width: 36px;
+    --adv-table-side-button-bg: #{getCssVarWithDefault('bg-color', #fff)};
+    --adv-table-side-button-border-color: #{getCssVarWithDefault('border-color-lighter', #ebeef5)};
+    --adv-table-side-button-icon-color: #{getCssVarWithDefault('text-color-secondary', #909399)};
+    --adv-table-side-button-icon-color-active: #{getCssVarWithDefault('color-primary', #409eff)};
+    --adv-table-side-button-hover-bg: #{getCssVarWithDefault('fill-color-light', #f5f7fa)};
+    --adv-table-side-button-badge-color: #{getCssVarWithDefault('color-danger', #f56c6c)};
+
+    display: flex;
+    flex-direction: column;
+    width: var(--adv-table-side-button-width);
+    flex-shrink: 0;
+    background: var(--adv-table-side-button-bg);
+    border-left: 1px solid var(--adv-table-side-button-border-color);
+    box-sizing: border-box;
+  }
+
+  .adv-table-side-button {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--adv-table-side-button-width);
+    height: var(--adv-table-side-button-width);
+    padding: 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: var(--adv-table-side-button-icon-color);
+    transition: color 0.15s ease;
+    box-sizing: border-box;
+
+    &:hover {
+      color: var(--adv-table-side-button-icon-color-active);
+    }
+
+    &--active {
+      color: var(--adv-table-side-button-icon-color-active);
+      background: rgba(64, 158, 255, 0.08);
+    }
+
+    &--active-filter-right::after,
+    &--active-filter-left::after {
+      display: none;
+    }
+
+    &__icon {
+      font-size: 15px;
+    }
+
+    &__badge {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--adv-table-side-button-badge-color);
+    }
+  }
+}

@@ -1,0 +1,115 @@
+@use 'element-plus/theme-chalk/src/mixins/config.scss' as *;
+@use 'ep-classes' as ep;
+// <zh/> 构建期命名空间单点：EP 的 $namespace 被本包 $ep-namespace 覆盖，本文件内插值均跟随（默认 el，覆盖见 ep-classes 文件头） | <en/> Build-time namespace single-source: EP $namespace is overridden by our $ep-namespace; all interpolations in this file follow (default el, see the ep-classes header for overrides)
+$namespace: ep.$ep-namespace;
+@use 'element-plus/theme-chalk/src/mixins/function.scss' as *;
+
+.adv-table {
+  --adv-table-cell-editor-danger-color: #{getCssVarWithDefault(('color', 'danger'), #f56c6c)};
+  --adv-table-cell-editor-popup-trigger-color: #{getCssVarWithDefault(('color', 'primary'), #409eff)};
+  --adv-table-cell-dirty-bg: #{getCssVarWithDefault(('color', 'warning-light-9'), #fdf6ec)};
+  --adv-table-cell-dirty-border: #{getCssVarWithDefault(('color', 'warning'), #e6a23c)};
+
+  .adv-table__cell-editor-wrapper {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    position: relative;
+
+    /* 编辑器组件撑满单元格宽度 | Editor components fill the cell width */
+    .#{$namespace}-input-number,
+    .#{$namespace}-select,
+    .#{$namespace}-input,
+    .#{$namespace}-date-editor {
+      width: 100%;
+    }
+  }
+
+  .adv-table__cell-editor-wrapper--has-error {
+    .#{$namespace}-input__wrapper,
+    .#{$namespace}-input__wrapper:hover,
+    .#{$namespace}-input__wrapper:focus,
+    .#{$namespace}-input__wrapper.is-focus,
+    .#{$namespace}-textarea__inner,
+    .#{$namespace}-textarea__inner:hover,
+    .#{$namespace}-textarea__inner:focus,
+    .#{$namespace}-textarea__inner.is-focus,
+    .#{$namespace}-select__wrapper,
+    .#{$namespace}-select__wrapper:hover,
+    .#{$namespace}-select__wrapper:focus,
+    .#{$namespace}-select__wrapper.is-focus,
+    .#{$namespace}-input-tag__wrapper,
+    .#{$namespace}-input-tag__wrapper:hover,
+    .#{$namespace}-input-tag__wrapper:focus,
+    .#{$namespace}-input-tag__wrapper.is-focus,
+    :not(.#{$namespace}-input-otp--underlined) .#{$namespace}-input-otp__input-field,
+    :not(.#{$namespace}-input-otp--underlined) .#{$namespace}-input-otp__input-field:hover,
+    :not(.#{$namespace}-input-otp--underlined) .#{$namespace}-input-otp__input-field:focus,
+    :not(.#{$namespace}-input-otp--underlined) .#{$namespace}-input-otp__input-field.is-focus {
+      box-shadow: 0 0 0 1px var(--adv-table-cell-editor-danger-color) inset;
+    }
+  }
+
+  .adv-table__cell-editor-wrapper--popup {
+    cursor: pointer;
+  }
+
+  .adv-table__cell-editor-popup-trigger {
+    display: inline-flex;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    color: var(--adv-table-cell-editor-popup-trigger-color);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .adv-table__cell-editor-popup {
+    padding: 8px 12px;
+
+    .#{$namespace}-input,
+    .#{$namespace}-select,
+    .#{$namespace}-date-editor,
+    .#{$namespace}-textarea {
+      width: 100%;
+    }
+  }
+
+  .adv-table__cell-editor-error {
+    color: var(--adv-table-cell-editor-danger-color);
+    font-size: 12px;
+  }
+
+  .adv-table__cell-validate-error {
+    color: var(--adv-table-cell-editor-danger-color);
+    font-size: 12px;
+    line-height: 1.4;
+    padding: 2px 4px;
+    max-width: 280px;
+    word-break: break-word;
+  }
+
+  .adv-table__cell--dirty {
+    background-color: var(--adv-table-cell-dirty-bg);
+    border-left: 2px solid var(--adv-table-cell-dirty-border);
+  }
+}
+
+// 单元格/表头渲染错误降级样式
+// Cell/header render error fallback styles
+// 单个 cellRenderer / headerCellRenderer / slot / format 抛错时显示
+// Shown when individual cellRenderer / headerCellRenderer / slot / format throws
+.adv-table__cell--error,
+.adv-table__header--error {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.2em;
+  padding: 0 4px;
+  color: #{getCssVarWithDefault('color-danger', #f56c6c)};
+  background-color: #{getCssVarWithDefault('color-danger-light-9', #fef0f0)};
+  border-radius: 2px;
+  font-size: 12px;
+  cursor: help;
+}

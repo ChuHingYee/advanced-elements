@@ -1,0 +1,357 @@
+/**
+ * <zh/> 英文语言包 —— AdvTable 表格组件的英文翻译定义
+ * <zh/> 包含表格操作、表单、编辑、右键菜单、筛选、导出导入等所有 UI 文本的英文映射。
+ * <en/> English locale pack — English translation definitions for the AdvTable component.
+ * <en/> Contains English mappings for all UI texts: table operations, forms, editing, context menu, filtering, export/import, etc.
+ */
+
+import type { AdvTableLocale } from '../types'
+
+/**
+ * <zh/> 英文语言包对象
+ * <zh/> 所有 key 与中文包保持结构一致，value 为对应英文翻译。
+ * <en/> English locale pack object
+ * <en/> All keys share the same structure as the Chinese pack; values are the English translations.
+ */
+export const en: AdvTableLocale = Object.freeze({
+  name: 'en',
+  currency: {
+    symbol: '$',
+    locale: 'en-US',
+  },
+  table: {
+    query: 'Search',
+    reset: 'Reset',
+    refresh: 'Refresh',
+    loadMore: 'Load More',
+    noMore: 'No More',
+    summary: 'Summary',
+    rowExpand: 'Row {rowKey}',
+    rowAction: 'Row Actions',
+    rowActionExpand: 'Expand Actions',
+    rowActionCollapse: 'Collapse Actions',
+    groupExpand: 'Expand group',
+    groupCollapse: 'Collapse group',
+    rowExpandButton: 'Expand this row',
+    rowCollapseButton: 'Collapse this row',
+    sortAsc: 'Click to sort ascending',
+    sortAscActive: 'Ascending, click to switch to descending',
+    sortDescActive: 'Descending, click to clear sort',
+    filterClear: 'Clear filter',
+    filterOpen: 'Open filter',
+    columnSetting: 'Column Setting',
+    columnDisplay: 'Column Display',
+    resetColumns: 'Reset',
+    fixedLeft: 'Fixed Left',
+    fixedRight: 'Fixed Right',
+    unfixed: 'Unfixed',
+    pinToLeft: 'Pin to Left',
+    pinToRight: 'Pin to Right',
+    unpin: 'Unpin',
+    pinnedCannotUnpin: 'Pinned column cannot be unpinned',
+    virtualSlotIgnored: 'Default slot is ignored in virtual mode. Use column cellRenderer or column slots instead.',
+    renderError: 'Table render error',
+    ariaLabel: 'Advanced Table',
+    polling: {
+      start: 'Start Polling',
+      stop: 'Stop Polling',
+    },
+    copy: {
+      success: 'Copied',
+      fail: 'Copy failed, please copy manually',
+    },
+    export: {
+      title: 'Export Excel',
+      success: 'Export succeeded',
+      fail: 'Export failed',
+      csvTitle: 'Export CSV',
+      csvSuccess: 'CSV export succeeded',
+      csvFail: 'CSV export failed',
+      pendingChanges: 'Uncommitted edits exist. Please commit or discard them before exporting.',
+      filename: 'export',
+      sheetName: 'Sheet1',
+    },
+    import: {
+      title: 'Import Data',
+      success: 'Import succeeded, {count} rows',
+      fail: 'Import failed',
+      noFile: 'No file selected',
+      invalidFile: 'Unsupported file format',
+      maxRowsExceeded: 'Import exceeds max rows {max}, truncated',
+      noData: 'No valid data in file',
+      cancelled: 'Import cancelled',
+    },
+    print: {
+      title: 'Print',
+      success: 'Print job sent',
+      fail: 'Print failed',
+      rowIndex: 'No.',
+      pendingChanges: 'Uncommitted edits exist. Please commit or discard them before printing.',
+    },
+    filter: {
+      confirm: 'OK',
+      reset: 'Reset',
+      searchPlaceholder: 'Search...',
+      eq: '=',
+      neq: '≠',
+      gt: '>',
+      gte: '≥',
+      lt: '<',
+      lte: '≤',
+      between: 'Range',
+      blank: 'Blank',
+      notBlank: 'Not blank',
+      min: 'Min',
+      max: 'Max',
+      addCondition: 'Add condition',
+      removeCondition: 'Remove',
+      and: 'And',
+      or: 'Or',
+      today: 'Today',
+      thisWeek: 'This week',
+      thisMonth: 'This month',
+      before: 'Before',
+      after: 'After',
+      beforePlaceholder: 'Before date',
+      afterPlaceholder: 'After date',
+      startDate: 'Start date',
+      endDate: 'End date',
+      selectAll: 'Select all',
+      filterPlaceholder: 'Search options...',
+      noMatches: 'No matches.',
+      contains: 'Contains',
+      notContains: 'Does not contain',
+      equals: 'Equals',
+      notEquals: 'Does not equal',
+      beginsWith: 'Begins with',
+      endsWith: 'Ends with',
+      textPlaceholder: 'Value...',
+      panelTitle: 'Filters',
+      resetAll: 'Reset All',
+    },
+    quickFilter: {
+      searchPlaceholder: 'Search...',
+    },
+    contextMenu: {
+      copyCell: 'Copy Cell',
+      copyCellWithHeader: 'Copy Cell with Header',
+      copyRow: 'Copy Row',
+      copyRowWithHeaders: 'Copy Row with Headers',
+      copySelectedRows: 'Copy Selected Rows',
+      copySelectedRowsWithHeaders: 'Copy Selected Rows with Headers',
+      cutCell: 'Cut Cell',
+      pasteCell: 'Paste Cell',
+      clearCell: 'Clear Cell',
+      editCell: 'Edit Cell',
+      deleteRow: 'Delete Row',
+      deleteSelectedRows: 'Delete Selected Rows',
+      insertRowAbove: 'Insert Row Above',
+      insertRowBelow: 'Insert Row Below',
+      autoSizeThisColumn: 'Autosize This Column',
+      autoSizeAllColumns: 'Autosize All Columns',
+      resetColumns: 'Reset Columns',
+      clearSort: 'Clear Sort',
+      clearFilter: 'Clear Filter',
+      clearAllFilters: 'Clear All Filters',
+      exportCsv: 'Export CSV',
+      exportExcel: 'Export Excel',
+      importExcel: 'Import Data',
+      print: 'Print',
+      hideThisColumn: 'Hide This Column',
+      showAllColumns: 'Show All Columns',
+      copy: 'Copy',
+      rowOperations: 'Row Operations',
+      columnOperations: 'Column Operations',
+    },
+    columnGroup: {
+      title: 'Column Group',
+      createGroup: 'Create Group',
+      deleteGroup: 'Delete Group',
+      renameGroup: 'Rename Group',
+      newGroupName: 'New Group',
+      groupNotEmpty: 'Group is not empty, cannot delete',
+      groupNameRequired: 'Group name is required',
+      apply: 'Apply',
+      reset: 'Reset',
+      dragHint: 'Drag to adjust group structure',
+      emptyGroup: 'Empty Group',
+      columnLocked: 'Column is locked, cannot move',
+      maxDepthExceeded: 'Maximum nesting depth exceeded',
+    },
+  },
+  form: {
+    expand: 'Expand',
+    collapse: 'Collapse',
+    fullscreen: 'Fullscreen',
+    exitFullscreen: 'Exit Fullscreen',
+    add: 'Add',
+    duplicateFields: 'Duplicate fields',
+    inputPlaceholder: 'Please enter',
+    selectPlaceholder: 'Please select',
+  },
+  edit: {
+    edit: 'Edit',
+    cancel: 'Cancel',
+    confirm: 'OK',
+    required: 'Required',
+    validationError: 'Validation failed',
+  },
+  error: {
+    TABLE_SORT_WORKER_FAILED: {
+      message: 'Sort worker unavailable, fell back to main thread sorting',
+      suggestion: 'Check CSP configuration or Worker script path.',
+    },
+    TABLE_SPAN_LIMIT_EXCEEDED: {
+      message: 'Cell-span computation skipped due to data size limit',
+      suggestion: 'Reduce data volume or use a lighter span configuration.',
+    },
+    TABLE_PIN_LIMIT_EXCEEDED: {
+      message: 'Pinned-row count exceeded the limit; extras moved back to the scroll area',
+      suggestion: 'Pin fewer rows, or raise the cap via rowPinConfig.maxPinnedRows.',
+    },
+    TABLE_ROW_EXPAND_STORAGE_FAILED: {
+      message: 'Row-expand persistence storage failure',
+      suggestion: 'Storage may be full, disabled, or JSON parsing failed. Expand state is valid for this session only and will be lost on refresh.',
+    },
+    TABLE_COLUMN_STATE_STORAGE_FAILED: {
+      message: 'Column-state persistence storage failure',
+      suggestion: 'Check storage quota or disable column-state persistence.',
+    },
+    TABLE_DUPLICATE_TABLE_ID: {
+      message: 'Duplicate tableId detected',
+      suggestion: 'Tables on the same page must use distinct ui-config.tableId values, otherwise column-state persistence collides and drag containers may resolve to the wrong table. Isolate explicitly via column-state storageKey when sharing is intentional.',
+    },
+    TABLE_NAMESPACE_MISMATCH: {
+      message: 'Namespace config disagrees with the Element Plus namespace',
+      suggestion: 'The explicit uiConfig.namespace disagrees with the Element Plus ConfigProvider namespace, or rendered class names decoupled from the lookup selectors. Drop uiConfig.namespace (follows EP automatically) or align it; a custom prefix also needs a rebuilt CSS (pair SASS $ep-namespace, see the README namespace chapter).',
+    },
+    TABLE_MODE_SWITCHED: {
+      message: 'Runtime mode switch',
+      suggestion: 'Edit state, scroll position, and shift-select context have been reset. Consider using v-if to rebuild the component for a clean state migration.',
+    },
+    TABLE_MODE_SWITCH_FORBIDDEN: {
+      message: 'Runtime mode switch is forbidden',
+      suggestion: 'State cleanup ran (edit / shift-select / menu / range selection reset, etc.), but the mode has already switched and cannot be prevented; an error event was dispatched — listen to @error or pre-check with canSwitchMode(behavior) at the write site. Recreate with v-if, or use modeSwitchBehavior=\'warn\'.',
+    },
+    TABLE_VIRTUAL_SLOT_IGNORED: {
+      message: 'Default slot ignored in virtual mode',
+      suggestion: 'Declarative <el-table-column> is default-mode only; in virtual mode use the columns prop or switch to mode="default".',
+    },
+    TABLE_SPAN_DYNAMIC_HEIGHT_UNSUPPORTED: {
+      message: 'Cell span and dynamic row height cannot be combined in virtual mode',
+      suggestion: 'Remove estimatedRowHeight (or switch to a fixed rowHeight), or merge cells outside the span config; the dynamic grid clips rowspan-extended origin cells.',
+    },
+    TABLE_ROW_HEIGHT_RESET_UNAVAILABLE: {
+      message: 'Virtual row-height remeasure entry unavailable; row heights may not update',
+      suggestion: 'This library depends on Element Plus\'s unpublished resetAfterRowIndex to remeasure virtual row heights. If element-plus was just upgraded, check the version against EP-UPGRADE-CHECKLIST.md; as a workaround use a fixed rowHeight (drop dynamic row height).',
+    },
+    TABLE_VIRTUAL_HIERARCHY_ROW_KEY_MISSING: {
+      message: 'Tree/row-expand enabled in virtual mode without a rowKey',
+      suggestion: 'Set rowConfig.rowKey to a unique row field (e.g. "id"). Without it, identity falls back to object-identity auto keys: expanded state and parent-child relations are lost when row objects are replaced (refresh/deep copy), and ElTableV2 cannot cache auto keys on frozen rows.',
+    },
+    TABLE_RENDER_ERROR: {
+      message: 'Table render error',
+      suggestion: 'Check column cellRenderer / formatter for exceptions, or fall back to default mode.',
+    },
+    TABLE_EDIT_VALIDATION_FAILED: {
+      message: 'Edit validation failed',
+      suggestion: 'Check editConfig.rules or crossFieldValidator configuration.',
+    },
+    TABLE_EDIT_ROLLBACK: {
+      message: 'Edit persistence failed, changes rolled back',
+      suggestion: 'Inspect the editConfig.onPersist implementation and network/backend; data matches the pre-commit state after rollback, safe to retry.',
+    },
+    TABLE_REQUEST_FAILED: {
+      message: 'Data request failed',
+      suggestion: 'Check request.source, network, or backend service.',
+    },
+    TABLE_EXPORT_FAILED: {
+      message: 'Data export failed',
+      suggestion: 'Check export permissions, file write, or disk space.',
+    },
+    TABLE_IMPORT_FAILED: {
+      message: 'Data import failed',
+      suggestion: 'Check file format, size, or field mapping.',
+    },
+    TABLE_PRINT_FAILED: {
+      message: 'Print failed',
+      suggestion: 'Check browser print permissions or iframe lifecycle.',
+    },
+    TABLE_ROW_DRAG_FAILED: {
+      message: 'Row drag operation failed',
+      suggestion: 'Check reorderKey configuration or target row index validity.',
+    },
+    TABLE_COLUMN_DRAG_FAILED: {
+      message: 'Column drag operation failed',
+      suggestion: 'Check column draggable configuration or target column index validity.',
+    },
+    TABLE_TREE_LOAD_CHILDREN_FAILED: {
+      message: 'Tree child-node load failed',
+      suggestion: 'Check treeConfig loadChildren implementation or backend service.',
+    },
+    TABLE_CLIPBOARD_FAILED: {
+      message: 'Clipboard or range selection operation failed',
+      suggestion: 'Check browser clipboard permissions or cross-page selection data integrity.',
+    },
+    TABLE_CLIPBOARD_COPY_FAILED: {
+      message: 'Clipboard write failed',
+      suggestion: 'Check browser clipboard permissions, or ensure the context is a secure origin (https/localhost).',
+    },
+    TABLE_CLIPBOARD_CUT_FAILED: {
+      message: 'Cut commit failed',
+      suggestion: 'Check whether edit-pipeline interceptors or validation rules rejected the empty-value write.',
+    },
+    TABLE_CLIPBOARD_READ_FAILED: {
+      message: 'Clipboard read denied by the browser',
+      suggestion: 'Check Clipboard API authorization, or ensure the context is a secure origin (https/localhost).',
+    },
+    TABLE_CLIPBOARD_PASTE_FAILED: {
+      message: 'Paste commit failed',
+      suggestion: 'Check edit-pipeline interceptors and validation rules, and whether the target column is editable.',
+    },
+    TABLE_CONTEXT_ACTION_FAILED: {
+      message: 'Context-menu built-in action failed',
+      suggestion: 'Check context-menu action target data or permissions.',
+    },
+    TABLE_CONFIG_DATA_AND_SOURCE_CONFLICT: {
+      message: 'Both "data" and "request.source" props provided',
+      suggestion: '"request.source" takes higher priority; "data" prop will be ignored. Remove one to avoid confusion.',
+    },
+    TABLE_UNCONTROLLED_EDIT_SHADOW: {
+      message: 'Cell editing enabled with one-way "data" binding',
+      suggestion: 'Edit write-back only updates the internal model; the parent data source is not synced and a later ":data" push from the parent silently overwrites that edit. Use "v-model:data" or listen to "update:data" instead.',
+    },
+    TABLE_UNCONTROLLED_COLUMNS_SHADOW: {
+      message: 'Interactive columns with one-way "columns" binding (drag/setting)',
+      suggestion: 'Column-interaction write-back only updates the internal model; the parent column config is not synced and a later ":columns" push from the parent silently overwrites that change. Use "v-model:columns" or listen to "update:columns" instead.',
+    },
+    TABLE_PERF_LARGE_DATASET_NO_VIRTUAL: {
+      message: 'Large dataset without virtual scroll enabled',
+      suggestion: 'Set `mode="virtual"` or `virtual` prop to true for better rendering performance.',
+    },
+    TABLE_CONFIG_CONFLICT: {
+      message: 'Both treeConfig and rowGroupConfig are enabled',
+      suggestion: 'They are mutually exclusive: rowGroupConfig is ignored at runtime (grouping flattened tree data breaks hierarchy). Remove one.',
+    },
+    TABLE_RESPONSE_MALFORMED: {
+      message: 'Backend response fields do not match formatMaps; treated as empty',
+      suggestion: 'Check request.formatMaps / backend field names (data/total), or adapt via transformResponse.',
+    },
+    TABLE_TREE_REMOTE_PAGINATION_UNSUPPORTED: {
+      message: 'Tree and server-side pagination cannot be combined; parent/child rows may land on different pages',
+      suggestion: 'For tree data use client paging (pagination.mode="client") or fetch the full dataset (pagination.enabled=false).',
+    },
+    TABLE_SERVER_LOCAL_FILTER_PAGE_ONLY: {
+      message: 'With a server data source, local filters apply to the current page only',
+      suggestion: 'Column filters / quickFilter / externalFilter are active, but request.source + request.autoParams off means only the current page is filtered, not the full dataset. Enable request.autoParams for server-side filtering; ignore when page-local semantics is intended.',
+    },
+    TABLE_SECURITY_PROTOTYPE_POLLUTION: {
+      message: 'Potential prototype pollution detected',
+      suggestion: 'Check whether the data source contains __proto__/constructor keys; they are stripped automatically before write.',
+    },
+    TABLE_SECURITY_SENSITIVE_COLUMN: {
+      message: 'Sensitive column data detected in export',
+      suggestion: 'Columns marked sensitive: true are excluded from export automatically; check the column.sensitive config.',
+    },
+  },
+})

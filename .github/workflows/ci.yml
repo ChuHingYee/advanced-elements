@@ -1,0 +1,207 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master, develop]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+# <zh/> 最小权限：CI 只读检出 + 缓存，不写回仓库
+# <en/> Least privilege: CI only checks out and caches, never writes back
+permissions:
+  contents: read
+
+jobs:
+  # <zh/> 静态检查：eslint 棘轮（全仓 lint 尚有历史 warning 债务，见 pnpm lint:check）+ table 专属约定检查。
+  # <zh/> 新包接入：只需保证自身目录在 lint:table 扩大范围后干净，无需改本文件。
+  # <en/> Static checks: eslint ratchet (whole-repo lint still carries historic warnings, see pnpm lint:check) + table-specific convention checks.
+  # <en/> New packages need no workflow change here; they join automatically once debt is settled and the scope widens.
+  lint:
+    name: Lint / Conventions
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint (@advanced-elements/table)
+        run: pnpm lint:table
+
+      - name: Convention checks (@advanced-elements/table)
+        run: >
+          pnpm --filter @advanced-elements/table check:comment &&
+          pnpm --filter @advanced-elements/table check:i18n &&
+          pnpm --filter @advanced-elements/table check:hook-size &&
+          pnpm --filter @advanced-elements/table check:namespace-aliases &&
+          pnpm --filter @advanced-elements/table check:ep-props &&
+          pnpm --filter @advanced-elements/table check:ep-selectors
+
+  # <zh/> 类型 + 单测 + 覆盖率：turbo 按 dependsOn 自动先构建 workspace 依赖，新包实现同名 script 即自动接入。
+  # <en/> Types + unit tests + coverage: turbo builds workspace deps first via dependsOn; new packages join by implementing the same scripts.
+  test:
+    name: Typecheck / Unit / Coverage
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # <zh/> turbo 本地缓存跨 run 持久化（key 带 sha 保证每次保存最新；restore-keys 回退到最近可用缓存；
+      # <zh/> 命中与否不影响正确性——turbo 自身按输入哈希校验缓存条目）
+      # <en/> Persist turbo's local cache across runs (sha-keyed saves stay fresh; restore-keys
+      # <en/> falls back to the newest available entry; correctness never depends on it —
+      # <en/> turbo validates cache entries against its own input hashes)
+      - name: Cache turbo
+        uses: actions/cache@v4
+        with:
+          path: .turbo/cache
+          key: turbo-${{ runner.os }}-${{ github.job }}-${{ github.sha }}
+          restore-keys: |
+            turbo-${{ runner.os }}-${{ github.job }}-
+
+      # <zh/> 单次 turbo 调用跑 typecheck+test：workspace 依赖（^build）只构建一次并在两任务间共享缓存
+      # <en/> One turbo invocation for typecheck+test: workspace deps (^build) build once, shared across both tasks
+      - name: Typecheck & unit tests (turbo)
+        run: pnpm turbo run typecheck test
+
+      # <zh/> 覆盖率硬门禁（table 专属阈值 85/75/85/85，见 vitest.coverage.config.ts 注释）；其他包的 coverage 无阈值，只跑不断言。
+      # <en/> Coverage hard gate (table-only thresholds 85/75/85/85, see vitest.coverage.config.ts); other packages run coverage with no thresholds.
+      - name: Coverage gates (@advanced-elements/table)
+        run: pnpm --filter @advanced-elements/table coverage
+
+  # <zh/> 浏览器测试：目前仅 table 有 browser project；其他包的 test 已在 test job 覆盖。
+  # <en/> Browser tests: only table ships a browser project today; other packages are covered by test in the test job.
+  browser:
+    name: Browser tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            playwright-${{ runner.os }}-
+
+      - name: Install Playwright chromium
+        run: pnpm --filter @advanced-elements/table exec playwright install --with-deps chromium
+
+      - name: Browser tests (@advanced-elements/table)
+        run: pnpm --filter @advanced-elements/table test:browser
+
+  # <zh/> 构建 + 产物门禁：turbo 构建全部 packages（含未来新包），随后文档构建与 table 体积检查（均依赖 dist，同 job 内顺序执行）。
+  # <en/> Build + artifact gates: turbo builds every package (including future ones), then docs build and table size checks (all need dist, hence same job).
+  build:
+    name: Build / Docs / Size
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # <zh/> turbo 缓存跨 run 持久化（同 test job 的说明；命中省去未变更包的重复构建）
+      # <en/> Persist turbo's cache across runs (see the test job note; hits skip rebuilding unchanged packages)
+      - name: Cache turbo
+        uses: actions/cache@v4
+        with:
+          path: .turbo/cache
+          key: turbo-${{ runner.os }}-${{ github.job }}-${{ github.sha }}
+          restore-keys: |
+            turbo-${{ runner.os }}-${{ github.job }}-
+
+      - name: Build packages (turbo)
+        run: pnpm build:all
+
+      - name: Build docs
+        run: pnpm docs:build
+
+      - name: Size limit (@advanced-elements/table)
+        run: pnpm --filter @advanced-elements/table size
+
+      - name: Size limit (@advanced-elements/elements)
+        run: pnpm --filter @advanced-elements/elements size
+
+      - name: Bundle check (@advanced-elements/table)
+        run: pnpm --filter @advanced-elements/table check:bundle
+
+  # <zh/> 供应链审计（全仓一次）：可修复漏洞走 pnpm-workspace.yaml overrides 硬 pin；
+  # <zh/> 无补丁的 4 项（xlsx*2/braces/sprintf-js）走同文件的 audit.ignore 显式忽略，详见该文件安全说明。
+  # <zh/> `pnpm audit` 只读 lockfile，无需安装依赖，故跳过 install。
+  # <en/> Supply-chain audit (whole workspace, once): patchable vulns are hard-pinned in pnpm-workspace.yaml overrides;
+  # <en/> the 4 unpatchable ones (xlsx*2/braces/sprintf-js) use audit.ignore in the same file, see its security note.
+  # <en/> `pnpm audit` reads the lockfile only — no install needed.
+  audit:
+    name: Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Audit (workspace)
+        run: pnpm audit --audit-level=moderate
+
+  # <zh/> 性能基线：仅信息上报，不阻塞合入（共享 runner 性能抖动大，误杀成本高于漏报）。
+  # <en/> Perf baseline: informational only, never blocks merging (shared runners are too noisy; false reds cost more than missed regressions).
+  benchmark:
+    name: Benchmark (informational)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Benchmark (@advanced-elements/table)
+        run: pnpm --filter @advanced-elements/table benchmark

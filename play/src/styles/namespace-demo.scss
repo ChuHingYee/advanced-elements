@@ -1,0 +1,12 @@
+// 自定义命名空间 demo 重编：EP 全量 + 本包全量，前缀 demo。
+//
+// 按需懒加载（App 全局开关 / NamespaceDemo 页经 ensureNamespaceStyles 调用），
+// 默认 el 下零成本。SASS 模块单例按编译单元隔离，不影响 play 其余默认样式。
+//
+// EP 侧用全量 index 而非按需枚举：AdvTable 内部渲染约 30 个 EP 组件
+// （弹层/编辑器/筛选/分页等），枚举易遗漏，全量一次编译约 2s（已实测），
+// 且仅在切到 demo 时支付一次。
+@use 'element-plus/theme-chalk/src/mixins/config.scss' with ($namespace: 'demo');
+@use 'element-plus/theme-chalk/src/index.scss' as *;
+@use '@advanced-elements/table/src/style/ep-classes' with ($ep-namespace: 'demo');
+@use '@advanced-elements/table/src/style/index.scss' as *;

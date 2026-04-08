@@ -1,0 +1,59 @@
+@use 'element-plus/theme-chalk/src/mixins/config.scss' as *;
+@use 'ep-classes' as ep;
+// <zh/> 构建期命名空间单点：EP 的 $namespace 被本包 $ep-namespace 覆盖，本文件内插值均跟随（默认 el，覆盖见 ep-classes 文件头） | <en/> Build-time namespace single-source: EP $namespace is overridden by our $ep-namespace; all interpolations in this file follow (default el, see the ep-classes header for overrides)
+$namespace: ep.$ep-namespace;
+@use 'element-plus/theme-chalk/src/mixins/function.scss' as *;
+@use 'mixins' as *;
+
+.adv-table-floating-filter {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  width: 100%;
+
+  &__input {
+    flex: 1;
+    min-width: 0;
+    cursor: pointer;
+
+    .#{$namespace}-input__wrapper {
+      padding: 0 4px;
+    }
+
+    .#{$namespace}-input__inner {
+      height: 24px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    &--active {
+      .#{$namespace}-input__inner {
+        color: var(--adv-table-color-primary);
+        font-weight: 500;
+      }
+    }
+  }
+
+  &__btn {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--adv-table-text-color-secondary);
+    border-radius: 3px;
+    font-size: 12px;
+    transition: color 0.2s, background-color 0.15s;
+
+    &:hover {
+      color: var(--adv-table-color-primary);
+      background-color: var(--adv-table-fill-color-light);
+    }
+
+    &--active {
+      color: var(--adv-table-color-primary);
+    }
+  }
+}

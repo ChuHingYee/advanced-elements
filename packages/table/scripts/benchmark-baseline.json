@@ -1,0 +1,30 @@
+{
+  "savedAt": "2026-10-24T16:12:21.000Z",
+  "node": "v22.17.1",
+  "results": [
+    {
+      "label": "mockData 10k×50",
+      "ms": 0.006999999999990791
+    },
+    {
+      "label": "classifyColumns O(m)",
+      "ms": 0.07450000000000045
+    },
+    {
+      "label": "rowKeyMeta O(n) 10k Map",
+      "ms": 4.1365419999999915
+    },
+    {
+      "label": "filter O(n×f) 5列",
+      "ms": 4.6440000000000055
+    },
+    {
+      "label": "sort O(n log n) 1列",
+      "ms": 12.87124999999999
+    },
+    {
+      "label": "span O(n×m) 1列 rowSpan",
+      "ms": 0.9158340000000038
+    }
+  ]
+}
