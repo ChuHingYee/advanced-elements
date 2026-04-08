@@ -1,0 +1,178 @@
+@use 'element-plus/theme-chalk/src/mixins/config.scss' as *;
+@use 'ep-classes' as ep;
+// <zh/> 构建期命名空间单点：EP 的 $namespace 被本包 $ep-namespace 覆盖，本文件内插值均跟随（默认 el，覆盖见 ep-classes 文件头） | <en/> Build-time namespace single-source: EP $namespace is overridden by our $ep-namespace; all interpolations in this file follow (default el, see the ep-classes header for overrides)
+$namespace: ep.$ep-namespace;
+@use 'element-plus/theme-chalk/src/mixins/function.scss' as *;
+@use 'mixins' as *;
+
+.adv-table-column-setting {
+  --adv-table-column-setting-item-height: 30px;
+  --adv-table-column-setting-item-gap: 6px;
+  --adv-table-column-setting-item-radius: 4px;
+  --adv-table-column-setting-drag-handle-width: 20px;
+  --adv-table-column-setting-drag-ghost-bg: var(--adv-table-drag-ghost-bg);
+  --adv-table-column-setting-drag-chosen-bg: var(--adv-table-drag-chosen-bg);
+  --adv-table-text-color-placeholder: #{getCssVarWithDefault(('text-color', 'placeholder'), #a8abb2)};
+  @include adv-table-color-vars;
+  --adv-table-fill-color-light: #{getCssVarWithDefault(('fill-color', 'light'), #f5f7fa)};
+  --adv-table-text-color-disabled: #{getCssVarWithDefault(('text-color', 'disabled'), #c0c4cc)};
+
+  &__trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--adv-table-text-color-secondary);
+    border-radius: var(--adv-table-border-radius-base);
+    cursor: pointer;
+    transition: all var(--adv-table-transition-duration-fast);
+
+    &:hover {
+      color: var(--adv-table-color-primary);
+      border-color: var(--adv-table-border-color);
+      background: var(--adv-table-fill-color-light);
+    }
+  }
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  &__reset {
+    width: 40px;
+    text-align: center;
+    cursor: pointer;
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: var(--adv-table-column-setting-body-max-height, 360px);
+    overflow-y: auto;
+  }
+
+  &__group-title {
+    font-size: 12px;
+    color: var(--adv-table-text-color-secondary);
+    padding: 4px 0 2px 4px;
+    line-height: 20px;
+    font-weight: 500;
+  }
+
+  &__group-list {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__icon {
+    font-size: 16px;
+    pointer-events: none;
+  }
+
+  &__nested-list {
+    min-height: 0;
+  }
+}
+
+.adv-table-column-setting-item {
+  display: flex;
+  align-items: center;
+  height: var(--adv-table-column-setting-item-height);
+  gap: var(--adv-table-column-setting-item-gap);
+  border-radius: var(--adv-table-column-setting-item-radius);
+  cursor: grab;
+  position: relative;
+
+  &:active {
+    cursor: grabbing;
+  }
+
+  .#{$namespace}-checkbox.#{$namespace}-checkbox--large {
+    height: 100%;
+    flex: 1;
+    margin-right: 4px;
+  }
+
+  .adv-table-column-setting-item__drag-handle {
+    flex-shrink: 0;
+    width: var(--adv-table-column-setting-drag-handle-width);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: grab;
+    color: getCssVar('text-color', 'secondary');
+
+    &:active {
+      cursor: grabbing;
+    }
+
+    &--hidden {
+      cursor: default;
+      visibility: hidden;
+    }
+  }
+
+  &__pin-actions {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 0;
+    margin-left: 4px;
+  }
+
+  &__pin-btn {
+    width: 20px;
+    height: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--adv-table-text-color-placeholder);
+    cursor: pointer;
+    transition: color 0.2s, background-color 0.15s;
+    border-radius: 3px;
+
+    &:hover:not(&--disabled) {
+      color: var(--adv-table-color-primary);
+      background-color: var(--adv-table-fill-color-light);
+    }
+
+    &--active {
+      color: var(--adv-table-color-primary);
+    }
+
+    &--disabled {
+      color: var(--adv-table-text-color-disabled);
+      cursor: not-allowed;
+      opacity: 0.6;
+
+      &:hover {
+        background-color: transparent;
+      }
+    }
+  }
+}
+
+.adv-table__column-setting-drag-ghost {
+  opacity: 0.5;
+  background: var(--adv-table-column-setting-drag-ghost-bg);
+}
+
+.adv-table__column-setting-drag-chosen {
+  background: var(--adv-table-column-setting-drag-chosen-bg);
+}
+
+.adv-table__column-setting-drag-no-drop {
+  cursor: no-drop !important;
+  opacity: 0.5;
+}
+
+.adv-table__column-setting-drag-drop-target {
+  background-color: var(--adv-table-column-setting-drag-ghost-bg);
+  border-top: 2px solid var(--adv-table-color-primary);
+}

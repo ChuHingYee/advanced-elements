@@ -1,0 +1,86 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    name: Release to NPM
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # <zh/> release-notes 要读上一个 tag 做版本比对，故必须带完整历史与 tag
+          # <en/> release-notes diffs against the previous tag, so full history and tags are required
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build all packages
+        run: pnpm build:all
+
+      - name: Run tests
+        run: pnpm test
+
+      - name: Typecheck (@advanced-elements/table)
+        run: pnpm --filter @advanced-elements/table typecheck
+
+      # <zh/> OTP 走环境变量而非 CLI flag：@changesets/cli 自己读 NPM_CONFIG_OTP，
+      # <zh/> 并在 spawn `npm publish` 前把 OTP 从子进程环境剥掉、改用 `--otp` 显式传参。
+      # <zh/> 别改回 `pnpm release --otp=...`——CLI flag 曾被静默丢弃。
+      # <zh/> 走 OIDC Trusted Publishing 时留空即可（id-token: write + provenance 已具备）。
+      # <en/> The OTP travels as an env var, not a CLI flag: @changesets/cli reads NPM_CONFIG_OTP
+      # <en/> itself, strips it from the child env, and passes --otp explicitly to `npm publish`.
+      # <en/> Do not revert to `pnpm release --otp=...` — the CLI flag was silently dropped.
+      # <en/> Leave empty when using OIDC Trusted Publishing (id-token: write + provenance cover it).
+      - name: Publish to NPM
+        run: pnpm release:publish
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_OTP: ${{ secrets.NPM_OTP }}
+          NPM_CONFIG_PROVENANCE: true
+
+      # <zh/> 放在 publish 之后：发布失败就不该留下一个"已发布"的 GitHub Release。
+      # <zh/> 正文取自各包 CHANGELOG（tag 已含 changeset version 的产物），而非 GitHub 自动汇总。
+      # <en/> Kept after publish: a failed publish must not leave a "released" GitHub Release behind.
+      # <en/> The body comes from the package CHANGELOGs (already in the tag via changeset version),
+      # <en/> not from GitHub's auto-generated notes.
+      - name: Assemble release notes
+        run: pnpm release:notes -- --out=RELEASE_NOTES.md
+
+      # <zh/> 预发 tag（含 `-`）建为 prerelease Release，别和稳定版混在一起
+      # <en/> Prerelease tags (containing `-`) become prerelease Releases, kept apart from stable ones
+      - name: Detect prerelease
+        id: meta
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          if [[ "$version" == *-* ]]; then
+            echo "prerelease=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "prerelease=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          body_path: RELEASE_NOTES.md
+          draft: false
+          prerelease: ${{ steps.meta.outputs.prerelease }}

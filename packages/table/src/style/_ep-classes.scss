@@ -1,0 +1,89 @@
+/**
+ * <zh/> Element Plus 内部类名单点（EP 耦合收敛，样式侧）。
+ * <zh/> JS 侧唯一出口为 `src/utils/ep-selectors.ts`；样式侧 EP 类引用一律使用此处变量，
+ * <zh/> EP 升级改名仅需改本文件 + `ep-selectors.ts` 两处，并按《EP-UPGRADE-CHECKLIST.md》回归。
+ * <en/> Element Plus internal class single-source (EP coupling convergence, style side).
+ * <en/> The JS-side outlet is `src/utils/ep-selectors.ts`; style-side EP class references must use
+ * <en/> these variables, so an EP rename only touches this file + `ep-selectors.ts`,
+ * <en/> regressed per `EP-UPGRADE-CHECKLIST.md`.
+ *
+ * <zh/> 已对 element-plus@2.14.0 验证
+ * <en/> Verified against element-plus@2.14.0
+ *
+ * <zh/> 自定义命名空间：构建期经 `$ep-namespace` 与运行时 `uiConfig.namespace` /
+ * <zh/> EP ConfigProvider namespace 配对（四元缺一即 TABLE_NAMESPACE_MISMATCH，见 README 命名空间章节）。
+ * <zh/> 覆盖方式（first-load 配置，SASS 模块单例语义——本文件必须最先被加载）：
+ * <zh/> `@use '@advanced-elements/table/src/style/ep-classes' with ($ep-namespace: 'xxx');`
+ * <zh/> 置于一切 `@use '@advanced-elements/table/src/style/index.scss'` 之前；同时按 EP 官方方式
+ * <zh/> 重建 EP 自身 CSS（SASS `$namespace`）与运行时 ConfigProvider namespace。
+ * <en/> Custom namespace: pair the build-time `$ep-namespace` with the runtime `uiConfig.namespace` /
+ * <en/> EP ConfigProvider namespace (any of the four unpaired trips TABLE_NAMESPACE_MISMATCH, see the
+ * <en/> README namespace chapter). Override via first-load configuration (SASS module singleton
+ * <en/> semantics — this file must load first):
+ * <en/> `@use '@advanced-elements/table/src/style/ep-classes' with ($ep-namespace: 'xxx');`
+ * <en/> placed before any `@use '@advanced-elements/table/src/style/index.scss'`; rebuild EP's own CSS
+ * <en/> (SASS `$namespace`) and set the runtime ConfigProvider namespace the EP-documented way.
+ */
+
+// <zh/> 构建期命名空间（默认 `el`，可按上文覆盖；运行时侧见 `core.namespace`） | <en/> Build-time namespace (defaults to `el`, overridable as above; runtime side see `core.namespace`)
+$ep-namespace: 'el' !default;
+
+// <zh/> ElTable（default 模式） | <en/> ElTable (default mode)
+$ep-table: '#{$ep-namespace}-table' !default;
+$ep-table-row: '#{$ep-namespace}-table__row' !default;
+$ep-table-cell: '#{$ep-namespace}-table__cell' !default;
+$ep-table-header: '#{$ep-namespace}-table__header' !default;
+$ep-table-header-wrapper: '#{$ep-namespace}-table__header-wrapper' !default;
+$ep-table-footer: '#{$ep-namespace}-table__footer' !default;
+$ep-table-body-wrapper: '#{$ep-namespace}-table__body-wrapper' !default;
+$ep-table-fixed-column-left: '#{$ep-namespace}-table-fixed-column--left' !default;
+$ep-table-fixed-column-right: '#{$ep-namespace}-table-fixed-column--right' !default;
+$ep-table-expand-icon: '#{$ep-namespace}-table__expand-icon' !default;
+$ep-table-expand-icon-expanded: '#{$ep-namespace}-table__expand-icon--expanded' !default;
+$ep-table-expand-icon-placeholder: '#{$ep-namespace}-table__expand-icon--placeholder' !default;
+$ep-table-indent: '#{$ep-namespace}-table__indent' !default;
+
+// <zh/> ElTableV2（virtual 模式） | <en/> ElTableV2 (virtual mode)
+$ep-table-v2-row: '#{$ep-namespace}-table-v2__row' !default;
+$ep-table-v2-row-cell: '#{$ep-namespace}-table-v2__row-cell' !default;
+$ep-table-v2-header: '#{$ep-namespace}-table-v2__header' !default;
+$ep-table-v2-header-row: '#{$ep-namespace}-table-v2__header-row' !default;
+$ep-table-v2-header-cell: '#{$ep-namespace}-table-v2__header-cell' !default;
+$ep-table-v2-main: '#{$ep-namespace}-table-v2__main' !default;
+$ep-table-v2-body: '#{$ep-namespace}-table-v2__body' !default;
+$ep-table-v2-left: '#{$ep-namespace}-table-v2__left' !default;
+$ep-table-v2-right: '#{$ep-namespace}-table-v2__right' !default;
+// <zh/> 自有 BEM（EP 前缀风格）：自发类见 v2-header，样式侧收敛于此 | <en/> Owned BEM (EP-prefix style): emitted by v2-header, converged here style-side
+$ep-table-v2-header-cell-leaf-span: '#{$ep-namespace}-table-v2-header-cell--leaf-span' !default;
+// <zh/> 原样保留的历史选择器形状（双横线前缀），行为不变 | <en/> Historical selector shape kept verbatim (double-dash prefix), behavior unchanged
+$ep-v2-header-wrapper-bare: '#{$ep-namespace}--table-v2__header-wrapper' !default;
+
+// <zh/> ElScrollbar（表尾/悬停层共用） | <en/> ElScrollbar (shared by footer / hover layer)
+$ep-scrollbar-wrap: '#{$ep-namespace}-scrollbar__wrap' !default;
+
+// <zh/> 通用组件（编辑器/筛选/搜索表单） | <en/> Generic components (editors / filters / search form)
+$ep-icon: '#{$ep-namespace}-icon' !default;
+$ep-button: '#{$ep-namespace}-button' !default;
+$ep-switch: '#{$ep-namespace}-switch' !default;
+$ep-progress: '#{$ep-namespace}-progress' !default;
+$ep-input: '#{$ep-namespace}-input' !default;
+$ep-input-inner: '#{$ep-namespace}-input__inner' !default;
+$ep-input-wrapper: '#{$ep-namespace}-input__wrapper' !default;
+$ep-input-number: '#{$ep-namespace}-input-number' !default;
+$ep-input-tag-wrapper: '#{$ep-namespace}-input-tag__wrapper' !default;
+$ep-input-otp-underlined: '#{$ep-namespace}-input-otp--underlined' !default;
+$ep-input-otp-input-field: '#{$ep-namespace}-input-otp__input-field' !default;
+$ep-input-group-prepend: '#{$ep-namespace}-input-group__prepend' !default;
+$ep-select: '#{$ep-namespace}-select' !default;
+$ep-select-wrapper: '#{$ep-namespace}-select__wrapper' !default;
+$ep-textarea: '#{$ep-namespace}-textarea' !default;
+$ep-textarea-inner: '#{$ep-namespace}-textarea__inner' !default;
+$ep-date-editor: '#{$ep-namespace}-date-editor' !default;
+$ep-collapse: '#{$ep-namespace}-collapse' !default;
+$ep-collapse-item-header: '#{$ep-namespace}-collapse-item__header' !default;
+$ep-collapse-item-wrap: '#{$ep-namespace}-collapse-item__wrap' !default;
+$ep-collapse-item-arrow: '#{$ep-namespace}-collapse-item__arrow' !default;
+$ep-checkbox: '#{$ep-namespace}-checkbox' !default;
+$ep-checkbox-large: '#{$ep-namespace}-checkbox--large' !default;
+$ep-form-item: '#{$ep-namespace}-form-item' !default;
+$ep-form-item-content: '#{$ep-namespace}-form-item__content' !default;

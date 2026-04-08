@@ -1,0 +1,129 @@
+@use 'element-plus/theme-chalk/src/mixins/config.scss' as *;
+@use 'ep-classes' as ep;
+// <zh/> 构建期命名空间单点：EP 的 $namespace 被本包 $ep-namespace 覆盖，本文件内插值均跟随（默认 el，覆盖见 ep-classes 文件头） | <en/> Build-time namespace single-source: EP $namespace is overridden by our $ep-namespace; all interpolations in this file follow (default el, see the ep-classes header for overrides)
+$namespace: ep.$ep-namespace;
+@use 'element-plus/theme-chalk/src/mixins/function.scss' as *;
+
+.adv-table {
+  /**
+   * <zh/> 通用侧面板容器样式
+   * <zh/> 布局由 side-panel.scss 统一管理，进入/离开动画由 <Transition> 控制
+   * <en/> Common side panel container styles
+   * <en/> Layout managed by side-panel.scss, enter/leave animations controlled by <Transition>
+   */
+  .adv-table-side-panel {
+    --adv-table-side-panel-width: 280px;
+    --adv-table-side-panel-bg: #{getCssVarWithDefault('bg-color', #fff)};
+    --adv-table-side-panel-border-color: #{getCssVarWithDefault('border-color-lighter', #ebeef5)};
+    --adv-table-side-panel-header-height: 40px;
+    --adv-table-side-panel-footer-height: 48px;
+
+    display: flex;
+    flex-direction: column;
+    width: var(--adv-table-side-panel-width);
+    align-self: stretch;
+    background: var(--adv-table-side-panel-bg);
+    border-color: var(--adv-table-side-panel-border-color);
+    border-style: solid;
+    border-width: 0;
+    box-sizing: border-box;
+    overflow: hidden;
+
+    &--right {
+      border-left-width: 1px;
+    }
+
+    &--left {
+      border-right-width: 1px;
+    }
+
+    &__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      height: var(--adv-table-side-panel-header-height);
+      padding: 0 12px;
+      border-bottom: 1px solid var(--adv-table-side-panel-border-color);
+      box-sizing: border-box;
+    }
+
+    &__title {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #{getCssVarWithDefault('text-color-primary', #303133)};
+    }
+
+    &__icon {
+      font-size: 16px;
+      color: #{getCssVarWithDefault('text-color-secondary', #909399)};
+    }
+
+    &__close {
+      cursor: pointer;
+      color: #{getCssVarWithDefault('text-color-secondary', #909399)};
+      transition: color 0.2s;
+
+      &:hover {
+        color: #{getCssVarWithDefault('color-primary', #409eff)};
+      }
+    }
+
+    &__body {
+      flex: 1;
+      overflow: hidden;
+      padding: 12px;
+      box-sizing: border-box;
+    }
+
+    &__footer {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      flex-shrink: 0;
+      height: var(--adv-table-side-panel-footer-height);
+      padding: 0 12px;
+      border-top: 1px solid var(--adv-table-side-panel-border-color);
+      box-sizing: border-box;
+    }
+  }
+
+  /* Transition: 滑入/滑出 | Transition: slide in/out */
+  .adv-side-panel-enter-active,
+  .adv-side-panel-leave-active {
+    transition: width 0.25s ease, opacity 0.25s ease;
+    overflow: hidden;
+  }
+
+  .adv-side-panel-enter-from,
+  .adv-side-panel-leave-to {
+    width: 0 !important;
+    opacity: 0;
+  }
+
+  .adv-side-panel-enter-to,
+  .adv-side-panel-leave-from {
+    width: var(--adv-table-side-panel-width);
+    opacity: 1;
+  }
+
+  /**
+   * <zh/> 异步面板加载占位（defineAsyncComponent loadingComponent）——弱网首开面板时的静态占位，
+   * <zh/> 与侧面板同宽，避免布局跳变；无动画（刻意最简，见 AdvTable.vue PanelLoading 注释）。
+   * <en/> Async panel loading placeholder (defineAsyncComponent loadingComponent) — static block shown
+   * <en/> on first panel open over slow networks, same width as side panels to avoid layout shift; no
+   * <en/> animation by design (kept minimal, see the PanelLoading note in AdvTable.vue).
+   */
+  .adv-table__panel-loading {
+    width: var(--adv-table-side-panel-width);
+    min-height: 120px;
+    flex-shrink: 0;
+    background: var(--adv-table-side-panel-bg);
+    border-left: 1px solid var(--adv-table-side-panel-border-color);
+    box-sizing: border-box;
+  }
+}

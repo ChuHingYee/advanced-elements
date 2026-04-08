@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.dts.json",
+  "compilerOptions": {
+    "rootDir": "./src",
+    "declarationDir": "./dist"
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.vue"
+  ],
+  "exclude": [
+    "rolldown.config.mjs",
+    "dist"
+  ]
+}

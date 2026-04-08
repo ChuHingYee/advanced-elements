@@ -1,0 +1,43 @@
+{
+  "name": "play",
+  "type": "module",
+  "version": "0.0.1",
+  "private": true,
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "predev": "node ../scripts/ensure-play-deps.mjs",
+    "dev": "vite",
+    "build": "run-p typecheck \"build-only {@}\" --",
+    "preview": "vite preview",
+    "build-only": "vite build",
+    "typecheck": "vue-tsc --build"
+  },
+  "dependencies": {
+    "@advanced-elements/elements": "workspace:*",
+    "@advanced-elements/table": "workspace:*",
+    "@element-plus/icons-vue": "catalog:",
+    "@vueuse/core": "catalog:",
+    "element-plus": "catalog:",
+    "pinia": "catalog:",
+    "vue": "catalog:",
+    "vue-router": "catalog:",
+    "xlsx": "catalog:"
+  },
+  "devDependencies": {
+    "@advanced-elements/resolvers": "workspace:*",
+    "@tsconfig/node24": "catalog:",
+    "@types/node": "catalog:node24",
+    "@vitejs/plugin-vue": "catalog:",
+    "@vitejs/plugin-vue-jsx": "catalog:",
+    "@vue/tsconfig": "catalog:",
+    "npm-run-all2": "catalog:",
+    "sass": "catalog:",
+    "typescript": "catalog:",
+    "unplugin-vue-components": "catalog:",
+    "vite": "catalog:",
+    "vite-plugin-vue-devtools": "catalog:",
+    "vue-tsc": "catalog:"
+  }
+}

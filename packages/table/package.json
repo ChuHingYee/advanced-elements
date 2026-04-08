@@ -1,0 +1,181 @@
+{
+  "name": "@advanced-elements/table",
+  "type": "module",
+  "version": "2.1.0",
+  "description": "Enterprise Vue 3 table built on Element Plus ElTable / ElTableV2 — virtual scroll, tree, editing, filter/sort, selection",
+  "author": "ChuHingYee",
+  "license": "MIT",
+  "homepage": "https://github.com/ChuHingYee/advanced-elements#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ChuHingYee/advanced-elements.git",
+    "directory": "packages/table"
+  },
+  "bugs": {
+    "url": "https://github.com/ChuHingYee/advanced-elements/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "vue3",
+    "element-plus",
+    "el-table",
+    "el-table-v2",
+    "table",
+    "datagrid",
+    "virtual-scroll",
+    "spreadsheet"
+  ],
+  "sideEffects": [
+    "**/*.scss",
+    "**/*.css",
+    "./dist/style/element-plus.js"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs",
+      "default": "./dist/index.cjs"
+    },
+    "./style": {
+      "import": "./dist/style/index.scss",
+      "require": "./dist/style/index.css"
+    },
+    "./style/element-plus": {
+      "types": "./dist/style/element-plus.d.ts",
+      "import": "./dist/style/element-plus.js",
+      "require": "./dist/style/element-plus.js",
+      "default": "./dist/style/element-plus.js"
+    },
+    "./style/index.scss": {
+      "import": "./dist/style/index.scss",
+      "default": "./dist/style/index.scss"
+    },
+    "./style/index.css": {
+      "import": "./dist/style/index.css",
+      "default": "./dist/style/index.css"
+    },
+    "./src/style/ep-classes": {
+      "default": "./src/style/_ep-classes.scss"
+    },
+    "./src/style/index.scss": {
+      "default": "./src/style/index.scss"
+    }
+  },
+  "main": "dist/index.cjs",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "style": "dist/style/index.scss",
+  "styleMain": "dist/style/index.css",
+  "files": [
+    "LICENSE",
+    "README.md",
+    "dist",
+    "src/style/"
+  ],
+  "engines": {
+    "node": ">=20.19"
+  },
+  "scripts": {
+    "test": "vitest run --project unit",
+    "test:watch": "vitest",
+    "test:browser": "vitest run --project browser",
+    "coverage": "vitest run --config vitest.coverage.config.ts --coverage",
+    "typecheck": "vue-tsc --noEmit -p tsconfig.json",
+    "check:comment": "node scripts/check-comment-convention.mjs",
+    "check:hook-size": "node scripts/check-hook-size.mjs",
+    "check:i18n": "node scripts/check-i18n.mjs",
+    "check:namespace-aliases": "node scripts/check-namespace-aliases.mjs",
+    "check:ep-props": "vitest run __tests__/guards/ep-props.guard.test.ts",
+    "check:ep-selectors": "vitest run __tests__/guards/ep-selectors.guard.test.ts",
+    "check:bundle": "node scripts/check-bundle-size.mjs && node scripts/analyze-bundle.mjs",
+    "analyze:html": "node scripts/analyze-bundle.mjs --html dist/bundle-report.html",
+    "analyze:visualizer": "node scripts/analyze-visualizer.mjs",
+    "benchmark": "node scripts/benchmark-pipeline.mjs",
+    "benchmark:full": "node scripts/benchmark-full-pipeline.mjs",
+    "memleak": "node scripts/memleak-table.mjs",
+    "clean": "rimraf ./dist",
+    "dev": "rolldown -c -w",
+    "build": "rimraf ./dist && rolldown -c && vue-tsc -p tsconfig.dts.json",
+    "prepack": "rimraf --glob \"./dist/**/*.map\"",
+    "size": "size-limit",
+    "audit": "pnpm audit --audit-level=moderate",
+    "audit:fix": "pnpm audit --fix"
+  },
+  "peerDependencies": {
+    "@advanced-elements/config-provider": "^2.1.0",
+    "@element-plus/icons-vue": "^2.3.2",
+    "@vueuse/core": "catalog:",
+    "async-validator": "^4.2.5",
+    "dayjs": "catalog:",
+    "element-plus": "catalog:",
+    "lodash-es": "catalog:",
+    "vue": "^3.5.28",
+    "vue-router": "^4.0.0 || ^5.0.0",
+    "xlsx": "^0.18.5 || >=0.19.3 <1"
+  },
+  "peerDependenciesMeta": {
+    "@advanced-elements/config-provider": {
+      "optional": true
+    },
+    "async-validator": {
+      "optional": true
+    },
+    "vue-router": {
+      "optional": true
+    },
+    "xlsx": {
+      "optional": true
+    }
+  },
+  "dependencies": {
+    "nanoid": "catalog:",
+    "vue-draggable-plus": "catalog:"
+  },
+  "browserslist": [
+    "chrome >= 94",
+    "edge >= 94",
+    "firefox >= 93",
+    "safari >= 15.4",
+    "ios_saf >= 15.4"
+  ],
+  "size-limit": [
+    {
+      "path": "dist/index.mjs",
+      "limit": "240 KB",
+      "gzip": true
+    },
+    {
+      "path": "dist/index.cjs",
+      "limit": "245 KB",
+      "gzip": true
+    },
+    {
+      "path": "dist/style/index.css",
+      "limit": "30 KB",
+      "gzip": true
+    }
+  ],
+  "devDependencies": {
+    "@advanced-elements/config-provider": "workspace:*",
+    "@advanced-elements/rolldown-config": "workspace:*",
+    "@rolldown/pluginutils": "catalog:",
+    "@size-limit/esbuild": "catalog:",
+    "@size-limit/file": "catalog:",
+    "@types/lodash-es": "catalog:",
+    "@vitest/browser": "catalog:",
+    "@vitest/browser-playwright": "catalog:",
+    "@vitest/coverage-v8": "catalog:",
+    "@vueuse/core": "catalog:",
+    "axe-core": "catalog:",
+    "playwright": "catalog:",
+    "rimraf": "catalog:",
+    "rollup-plugin-visualizer": "catalog:",
+    "size-limit": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:",
+    "vue-tsc": "catalog:"
+  }
+}

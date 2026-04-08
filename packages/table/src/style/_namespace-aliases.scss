@@ -1,0 +1,27 @@
+@use 'ep-classes' as ep;
+
+// <zh/> 命名空间兼容桥：运行时 JS 字符串中硬编码的 `var(--el-*)` 引用。
+// <zh/> SCSS 侧一律用 getCssVar* 助手（已全量转换），此处只覆盖 SASS 到达不了的运行时字符串
+// <zh/> （`use-span-overlay` / `use-default-grand` 背景、`row-action-bar` z-index、
+// <zh/> `sparkline` 描边、`print` 打印样式）。自定义构建时把 legacy 名桥接到新前缀；
+// <zh/> 默认构建零输出。新增运行时 `var(--el-*)` 引用时必须同步登记，
+// <zh/> 否则 `scripts/check-namespace-aliases.mjs` 阻断。
+// <en/> Namespace compatibility bridge for hardcoded `var(--el-*)` in runtime JS strings
+// <en/> (unreachable to SASS helpers). SCSS sources must use getCssVar* instead.
+// <en/> Emits nothing on default builds. New runtime references must register here,
+// <en/> enforced by `scripts/check-namespace-aliases.mjs`.
+@if ep.$ep-namespace != 'el' {
+  :root {
+    --el-index-top: var(--#{ep.$ep-namespace}-index-top);
+    --el-table-tr-bg-color: var(--#{ep.$ep-namespace}-table-tr-bg-color);
+    --el-bg-color: var(--#{ep.$ep-namespace}-bg-color);
+    --el-text-color-primary: var(--#{ep.$ep-namespace}-text-color-primary);
+    --el-text-color-secondary: var(--#{ep.$ep-namespace}-text-color-secondary);
+    --el-border-color-lighter: var(--#{ep.$ep-namespace}-border-color-lighter);
+    --el-border-color-light: var(--#{ep.$ep-namespace}-border-color-light);
+    --el-fill-color-light: var(--#{ep.$ep-namespace}-fill-color-light);
+    --el-text-color-regular: var(--#{ep.$ep-namespace}-text-color-regular);
+    --el-text-color-placeholder: var(--#{ep.$ep-namespace}-text-color-placeholder);
+    --el-color-primary: var(--#{ep.$ep-namespace}-color-primary);
+  }
+}

@@ -1,0 +1,5 @@
+# <zh/> 排除 sourcemap 文件，减小 npm 包体积 | <en/> Exclude sourcemap files to reduce npm package size
+dist/**/*.map
+# <zh/> 排除本地 bundle 可视化报告（构建机查看用，不发布） | <en/> Exclude the local bundle visual report (build-machine only, never published)
+dist/bundle-report.html
+dist/stats.html

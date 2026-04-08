@@ -1,0 +1,32 @@
+# Editor directories and files
+.idea
+
+# Package Manager
+node_modules
+.pnpm-debug.log*
+packages/*/dist
+dev-packages/*/dist
+docs/.vitepress/dist
+docs/.vitepress/cache
+.vitepress/cache
+coverage
+
+# Turbo
+.turbo
+
+# System
+.DS_Store
+
+# Vitest browser screenshots
+__screenshots__
+
+# test/debug artifacts
+*.xlsx
+
+# vitest runtime artifacts (attachments / cache)
+.vitest/
+.vitest-attachments/
+parity-keys.json
+
+# Auto-generated EP styles
+packages/table/src/style/_element-plus.scss

@@ -1,0 +1,83 @@
+// RTL 支持：逻辑属性 + [dir="rtl"] 覆盖
+// 仅在宿主设置 dir="rtl" 时生效，默认 LTR 保持物理属性回退
+@use 'ep-classes' as ep;
+
+[dir="rtl"] {
+  .adv-table {
+    direction: rtl;
+  }
+
+  .adv-table__page-right {
+    margin-left: 0;
+    margin-inline-start: auto;
+    margin-inline-end: 0;
+  }
+
+  .adv-table__header-cell-actions {
+    margin-left: 0;
+    margin-inline-start: 4px;
+  }
+
+  .adv-table-column-group-header__toggle {
+    margin-left: 0;
+    margin-inline-start: 4px;
+  }
+
+  .adv-table__row--invalid-drop::after {
+    right: auto;
+    left: 8px;
+    inset-inline-start: 8px;
+    inset-inline-end: auto;
+  }
+
+  .adv-table-ghost-info {
+    left: auto;
+    right: 8px;
+    inset-inline-start: auto;
+    inset-inline-end: 8px;
+  }
+
+  .adv-table-column-drag__drop-target {
+    border-left: none;
+    border-right: 2px solid var(--adv-table-color-primary);
+    border-inline-start: 2px solid var(--adv-table-color-primary);
+    border-inline-end: none;
+  }
+
+  .adv-table-row-drop-indicator__arrow {
+    left: auto;
+    right: 0;
+    inset-inline-start: auto;
+    inset-inline-end: 0;
+    border-left: none;
+    border-right: var(--adv-table-row-drop-indicator-arrow-size) solid var(--adv-table-row-drop-indicator-color);
+    border-inline-start: var(--adv-table-row-drop-indicator-arrow-size) solid var(--adv-table-row-drop-indicator-color);
+    border-inline-end: none;
+  }
+
+  // 虚拟表格固定列边框翻转
+  .adv-table-virtual-renderer {
+    .#{ep.$ep-table-v2-left} {
+      border-right: none;
+      border-left: 1px solid var(--adv-table-border-color);
+      border-inline-end: none;
+      border-inline-start: 1px solid var(--adv-table-border-color);
+    }
+    .#{ep.$ep-table-v2-right} {
+      border-left: none;
+      border-right: 1px solid var(--adv-table-border-color);
+      border-inline-start: none;
+      border-inline-end: 1px solid var(--adv-table-border-color);
+    }
+  }
+
+  // 上下文菜单子菜单定位翻转
+  .adv-table-context-menu {
+    .adv-table-context-menu__submenu {
+      left: auto;
+      right: 100%;
+      inset-inline-start: auto;
+      inset-inline-end: 100%;
+    }
+  }
+}
