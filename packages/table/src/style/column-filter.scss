@@ -1,0 +1,168 @@
+@use 'element-plus/theme-chalk/src/mixins/config.scss' as *;
+@use 'ep-classes' as ep;
+// <zh/> 构建期命名空间单点：EP 的 $namespace 被本包 $ep-namespace 覆盖，本文件内插值均跟随（默认 el，覆盖见 ep-classes 文件头） | <en/> Build-time namespace single-source: EP $namespace is overridden by our $ep-namespace; all interpolations in this file follow (default el, see the ep-classes header for overrides)
+$namespace: ep.$ep-namespace;
+@use 'element-plus/theme-chalk/src/mixins/function.scss' as *;
+@use 'mixins' as *;
+
+.adv-table {
+  .adv-table__filter-trigger {
+    --adv-table-filter-trigger-placeholder: #{getCssVarWithDefault(('text-color', 'placeholder'), #a8abb2)};
+    @include adv-table-color-vars;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    margin-left: 4px;
+    cursor: pointer;
+    color: var(--adv-table-filter-trigger-placeholder);
+    transition: color 0.2s;
+    vertical-align: middle;
+
+    &:hover {
+      color: var(--adv-table-color-primary);
+    }
+
+    &--active {
+      color: var(--adv-table-color-primary);
+    }
+  }
+
+  .adv-table__sort-indicator {
+    --adv-table-sort-indicator-placeholder: #{getCssVarWithDefault(('text-color', 'placeholder'), #a8abb2)};
+    --adv-table-sort-indicator-active: #{getCssVarWithDefault(('color', 'primary'), #409eff)};
+
+    position: relative;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-left: 2px;
+    gap: 0;
+    vertical-align: middle;
+    line-height: 1;
+
+    .adv-table__sort-icon {
+      color: var(--adv-table-sort-indicator-placeholder);
+      transition: color 0.2s;
+    }
+
+    .adv-table__sort-icon--asc {
+      margin-bottom: -3px;
+    }
+
+    .adv-table__sort-icon--desc {
+      margin-top: -3px;
+    }
+
+    .adv-table__sort-icon--active {
+      color: var(--adv-table-sort-indicator-active);
+    }
+
+    .adv-table__sort-index {
+      position: absolute;
+      top: -4px;
+      right: -6px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 14px;
+      height: 14px;
+      padding: 0 3px;
+      font-size: 10px;
+      font-weight: 600;
+      line-height: 1;
+      color: var(--adv-table-color-white, #fff);
+      background-color: var(--adv-table-sort-indicator-active);
+      border-radius: 7px;
+      pointer-events: none;
+    }
+  }
+
+  .adv-table__main .adv-table__header-cell:not(.adv-table__v2-header-cell) {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    width: 100%;
+    height: 100%;
+    min-height: var(--adv-table-header-cell-height, 50px);
+    box-sizing: border-box;
+    padding: var(--adv-table-header-cell-padding, 8px 12px);
+  }
+}
+
+.adv-table-filter-panel {
+  --adv-table-filter-panel-separator-color: #{getCssVarWithDefault(('text-color', 'secondary'), #909399)};
+  --adv-table-filter-panel-select-all-border-color: #{getCssVarWithDefault(('border', 'color-lighter'), #ebeef5)};
+
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  &__number-inputs {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    .#{$namespace}-input-number {
+      flex: 1;
+    }
+  }
+
+  &__date-inputs {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    .#{$namespace}-date-editor {
+      width: 100%;
+    }
+  }
+
+  &__date-picker {
+    --adv-table-filter-panel-date-picker-width: 100%;
+    width: var(--adv-table-filter-panel-date-picker-width);
+  }
+
+  &__separator {
+    color: var(--adv-table-filter-panel-separator-color);
+    flex-shrink: 0;
+  }
+
+  &__logic {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+  }
+
+  &__enum-search {
+    width: 100%;
+  }
+
+  &__select-all {
+    border-bottom: 1px solid var(--adv-table-filter-panel-select-all-border-color);
+    padding-bottom: 6px;
+  }
+
+  &__no-matches {
+    color: var(--adv-table-filter-panel-separator-color);
+    font-size: 12px;
+    text-align: center;
+    padding: 4px 0;
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 4px;
+  }
+}
+
+.adv-table-filter-popover {
+  div {
+    box-sizing: border-box;
+  }
+}

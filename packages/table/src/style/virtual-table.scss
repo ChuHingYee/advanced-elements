@@ -1,0 +1,561 @@
+@use 'element-plus/theme-chalk/src/mixins/config.scss' as *;
+@use 'ep-classes' as ep;
+// <zh/> 构建期命名空间单点：EP 的 $namespace 被本包 $ep-namespace 覆盖，本文件内插值均跟随（默认 el，覆盖见 ep-classes 文件头） | <en/> Build-time namespace single-source: EP $namespace is overridden by our $ep-namespace; all interpolations in this file follow (default el, see the ep-classes header for overrides)
+$namespace: ep.$ep-namespace;
+@use 'element-plus/theme-chalk/src/mixins/function.scss' as *;
+@use 'mixins' as *;
+
+.adv-table {
+  .adv-table__cell {
+    --adv-table-text-color-regular: #{getCssVarWithDefault(('text-color', 'regular'), #606266)};
+    @include adv-table-color-vars;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    padding: var(--adv-table-cell-padding, 8px 12px);
+    line-height: 23px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: left;
+    color: var(--adv-table-text-color-regular);
+    font-size: var(--adv-table-cell-font-size, 14px);
+  }
+
+  .adv-table__main .adv-table__header-cell:not(.adv-table__v2-header-cell) {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    width: 100%;
+    height: 100%;
+    min-height: var(--adv-table-header-cell-height, 50px);
+    box-sizing: border-box;
+    padding: var(--adv-table-header-cell-padding, 8px 12px);
+  }
+
+  .adv-table__main .#{$namespace}-table-v2__row-cell {
+    padding: 0;
+    align-items: center;
+    overflow: visible;
+  }
+
+  // 被合并的单元格隐藏，不占用视觉空间
+  // Merged (hidden) cells are collapsed to not take visual space
+  // <zh/> !important 注记：覆盖 EP ElTableV2 行单元格默认盒模型（element-plus@2.14.0
+  // <zh/> `.el-table-v2__row-cell` 主题规则的 height/padding）。自有类与 EP 主题规则特异性持平时
+  // <zh/> 需 !important 保序；EP 升级若调整该规则的选择器/特异性，此处需同步跟进（见 EP-UPGRADE-CHECKLIST §1-4）。
+  // <en/> !important note: overrides EP ElTableV2 row-cell default box model (element-plus@2.14.0
+  // <en/> `.el-table-v2__row-cell` theme height/padding). The owned class ties EP theme specificity,
+  // <en/> so !important keeps the order; if an EP upgrade changes that rule's selector/specificity,
+  // <en/> follow up here (see EP-UPGRADE-CHECKLIST §1-4).
+  .adv-table__cell-span-hidden {
+    visibility: hidden;
+    height: 0 !important;
+    min-height: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    overflow: hidden;
+  }
+
+  // 合并的起始单元格：静态样式通过类名控制
+  // Span origin cell: static styles applied via class
+  .adv-table__cell-span-origin {
+    align-self: flex-start !important;
+    z-index: 1;
+    background-color: var(--adv-table-bg-color, #fff);
+    overflow: visible !important;
+    // 底部边框：追平 ElTableV2 的 border-bottom | Bottom border: match ElTableV2's border-bottom
+    border-bottom: #{getCssVar('table', 'border')};
+  }
+
+  .adv-table__main .#{$namespace}-table-v2__row-cell > .#{$namespace}-table__expand-icon {
+    flex-shrink: 0;
+  }
+
+  .adv-table__main .#{$namespace}-table-v2__header-cell {
+    padding: 0;
+  }
+
+  .adv-table__main .#{$namespace}-table-v2__header {
+    background: var(--adv-table-header-background);
+
+    .#{$namespace}-table-v2__header-cell {
+      background: var(--adv-table-header-background);
+    }
+  }
+
+  // border 模式：与 ElTable border=true 表现一致
+  // Border mode: behave consistently with ElTable border=true
+  .adv-table-v2--border {
+    border: 1px solid #{getCssVarWithDefault(('border', 'color-lighter'), #ebeef5)};
+
+    // 右侧外边框线（补偿被内容覆盖的容器右边框，见底部 ::before 同理说明）
+    // Right outer border line (restores the container right border covered by content, see ::before below)
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      inset-inline-end: 0;
+      width: 1px;
+      height: 100%;
+      background-color: #{getCssVarWithDefault(('border', 'color-lighter'), #ebeef5)};
+      z-index: 3;
+    }
+
+    // 底部外边框线：主网格按无边框口径计算内容高度（表头 + body viewport），
+    // 比内容盒高出边框宽度并盖住容器自身的 border-bottom（未滚动到底时底框缺失）；
+    // overlay 补线保证底框恒可见，与真实边框同色同位重合时无缝。
+    // Bottom outer border line: the inner grid sizes itself border-blind (header + body
+    // viewport), overflowing the content box by the border width and covering the container's
+    // own border-bottom (missing bottom frame until scrolled to the end); the overlay keeps
+    // the bottom frame visible, seamlessly overlapping the real border when they coincide.
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 1px;
+      background-color: #{getCssVarWithDefault(('border', 'color-lighter'), #ebeef5)};
+      z-index: 3;
+    }
+  }
+
+  // border 模式下表头纵向内边框（含末列——列总宽不足容器宽时末格边缘与外框之间存在间隙，
+  // 末格必须自带右线；列填满时与外框线同位重合，无缝）
+  // Border mode: vertical inner border for header (including the last column — when columns
+  // don't fill the container a gap sits between the last cell edge and the outer frame, so the
+  // last cell must carry its own right line; it seamlessly overlaps the frame when full-width)
+  .adv-table-v2--border .#{$namespace}-table-v2__header {
+    .#{$namespace}-table-v2__header-row>* {
+      box-sizing: border-box;
+      border-right: 1px solid #{getCssVarWithDefault(('border', 'color-lighter'), #ebeef5)};
+      border-inline-end: 1px solid #{getCssVarWithDefault(('border', 'color-lighter'), #ebeef5)};
+
+      &.#{$namespace}-table-v2-header-cell--leaf-span {
+        border-right: 1px solid #{getCssVarWithDefault(('border', 'color-lighter'), #ebeef5)};
+        border-inline-end: 1px solid #{getCssVarWithDefault(('border', 'color-lighter'), #ebeef5)};
+
+        .#{$namespace}-table-v2__header-cell {
+          border-right: none;
+          border-inline-end: none;
+        }
+      }
+    }
+  }
+
+  // border 模式下单元格纵向内边框（含末列，同上）
+  // Border mode: vertical inner border for cells (including the last column, same as above)
+  .adv-table-v2--border .#{$namespace}-table-v2__row-cell {
+    border-right: 1px solid #{getCssVarWithDefault(('border', 'color-lighter'), #ebeef5)};
+    border-inline-end: 1px solid #{getCssVarWithDefault(('border', 'color-lighter'), #ebeef5)};
+  }
+
+  // 非 border 模式下移除纵向内边框
+  // Non-border mode: remove vertical inner borders
+  // <zh/> :not 必须锚定 ElTableV2 根（.adv-table__main.el-table-v2）——.adv-table__main 同时挂在外层
+  // <zh/> renderer 根上（恒无 border 类），若直接否定 .adv-table__main，border 模式下仍经外层根误命中，
+  // <zh/> 特异性反超正向规则导致表头/表体纵向边框被误删。
+  // <en/> The :not must anchor on the ElTableV2 root (.adv-table__main.el-table-v2) — .adv-table__main also
+  // <en/> sits on the outer renderer root (which never carries the border class), so negating .adv-table__main
+  // <en/> alone still matches via the outer root in border mode and outranks the positive rules, wrongly
+  // <en/> wiping header/body vertical borders.
+  .adv-table__main.#{$namespace}-table-v2:not(.adv-table-v2--border) .#{$namespace}-table-v2__header {
+    .#{$namespace}-table-v2__header-row>* {
+      border-right: none;
+    }
+  }
+
+  .adv-table__main.#{$namespace}-table-v2:not(.adv-table-v2--border) .#{$namespace}-table-v2__row-cell {
+    border-right: none;
+  }
+
+  .#{$namespace}--table-v2__header-wrapper {
+    background: var(--adv-table-header-background);
+  }
+
+  .adv-table__cell--overflow {
+    display: block;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .adv-table__cell--append-row {
+    display: block;
+    align-items: stretch;
+    padding: 0;
+    text-align: left;
+  }
+
+  .adv-table__v2-header-cell {
+    @include adv-table-header-cell-base;
+
+    .is-fixed & {
+      flex-shrink: 0;
+    }
+
+    &--group {
+      font-weight: 600;
+    }
+
+    &--leaf-span {
+      position: relative;
+      display: flex;
+      align-items: center;
+      z-index: 1;
+      padding: 0;
+      border-bottom: 1px solid #{getCssVarWithDefault(('border', 'color-light'), #ebeef5)};
+    }
+
+    // 合并表头占位/填充格：rowspan 缺口与固定条带填充行同样承载表头底色，
+    // 否则多级表头下出现无底色空洞（样式未覆盖全单元格）。
+    // Merged-header placeholder/filler cells: rowspan gaps and fixed-strip fillers
+    // carry the same header background, otherwise multi-level headers show
+    // unstyled holes (style not covering every cell).
+    &--placeholder {
+      position: relative;
+      display: flex;
+      align-items: center;
+      box-sizing: border-box;
+      // <zh/> 覆盖基类 min-height（50px）：height:0 填充格必须真正塌缩，否则自定义小表头高度下溢出行
+      // <en/> Override the base min-height (50px): height:0 fillers must truly collapse, or they overflow the row under small custom header heights
+      min-height: 0;
+      padding: 0;
+      overflow: hidden;
+      background: var(--adv-table-header-background);
+      background-color: var(--adv-table-header-background);
+    }
+  }
+
+  .#{$namespace}-table-v2__header-cell {
+    position: relative;
+    box-sizing: border-box;
+    height: 100%;
+  }
+
+  // 自有表头胞框架：自定义表头（选择列/分组头）的 EP 视觉复刻——声明逐项对齐 EP
+  // `.el-table-v2__header-cell` 主题规则（布局必需项），使自定义节点不再依赖 EP 类名。
+  // EP 改名后原生胞走主题 + 上方命名空间规则，自有节点不受影响。
+  // Owned header-cell frame: replicates the EP `.el-table-v2__header-cell` theme rules
+  // (layout essentials) declaration-by-declaration so custom headers (selection/group)
+  // no longer depend on the EP class. An EP rename affects native cells only.
+  //
+  // 底色必须与原生胞同源（--adv-table-header-background）：原生胞经上方命名空间规则
+  // 强制覆盖为该变量，若此处沿用 EP 原生变量（--el-table-header-bg-color，多为白色），
+  // 分组头与叶子头即出现灰白断层（合并表头样式失步的静态根因）。
+  // The background MUST share the native cells' source (--adv-table-header-background):
+  // native cells are force-overridden to it by the namespaced rules above; keeping EP's
+  // native var (--el-table-header-bg-color, usually white) here splits group headers
+  // white against gray leaf headers (the static root cause of merged-header style desync).
+  .adv-table__v2-header-cell--framed {
+    position: relative;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    padding: 0 8px;
+    overflow: hidden;
+    font-weight: 700;
+    // <zh/> 恢复可选：EP 原生 virtual 表头禁选导致表头文字无法复制，与 default 模式（ElTable 表头可选）对齐；
+    // <zh/> 折叠按钮自身经 .adv-table-column-group-header__toggle 的 user-select:none 禁选
+    // <en/> Selectable again: EP's native virtual headers are unselectable, making header text uncopyable —
+    // <en/> align with default mode (classic ElTable headers are selectable). The toggle itself stays
+    // <en/> non-selectable via .adv-table-column-group-header__toggle
+    user-select: text;
+    background-color: var(--adv-table-header-background);
+    color: #{getCssVar('table-header-text-color')};
+  }
+
+  // EP 原生 `.el-table-v2__header-row .el-table-v2__header-cell` 声明 user-select:none（ElTableV2 与经典
+  // ElTable 的默认行为差异），virtual 表头文字因此无法选中复制。特异性锚定 ElTableV2 根
+  // （同上方 border 规则的手法），不依赖样式表导入顺序即可压过 EP 主题规则。
+  // 列宽拖拽期间由 body.adv-table-resizing 全局禁选兜底，不影响 resize 体验。
+  // EP's native `.el-table-v2__header-row .el-table-v2__header-cell` sets user-select:none (an ElTableV2 vs
+  // classic ElTable default difference), making virtual header text uncopyable. Specificity anchors the
+  // ElTableV2 root (same technique as the border rules above) so import order can't defeat it.
+  // Column-resize drags remain covered by the global body.adv-table-resizing suppression.
+  .adv-table__main.#{$namespace}-table-v2 .#{$namespace}-table-v2__header-row .#{$namespace}-table-v2__header-cell {
+    user-select: text;
+  }
+
+  // leaf-span 内部 cell 需要填满父级 content area（border-box 下 border 占 1px）
+  // The inner cell of leaf-span must fill the parent content area (border takes 1px under border-box)
+  .adv-table__v2-header-cell--leaf-span .#{$namespace}-table-v2__header-cell {
+    width: 100% !important;
+  }
+
+  .adv-table__header-cell-actions .#{$namespace}-icon,
+  .adv-table__header-cell-actions .adv-table__filter-trigger,
+  .#{$namespace}-table-v2__header-cell:hover .adv-table__header-cell-actions .#{$namespace}-icon,
+  .#{$namespace}-table-v2__header-cell:hover .adv-table__header-cell-actions .adv-table__filter-trigger {
+    display: inline-flex;
+  }
+
+  .#{$namespace}-table-v2__header-row> :last-child .#{$namespace}-table-v2__header-cell {
+    border-right: none;
+  }
+
+  .#{$namespace}-table-v2__row-cell {
+    box-sizing: border-box;
+  }
+
+  .#{$namespace}-table-v2__row.adv-table__row--hover-layer-active,
+  .#{$namespace}-table__row.adv-table__row--hover-layer-active {
+    background-color: #{getCssVarWithDefault('table-row-hover-bg-color', #{getCssVarWithDefault(('table', 'row-hover-bg-color'), #f5f7fa)})};
+  }
+
+  .#{$namespace}-table-v2__row.adv-table__row--current {
+    background-color: #{getCssVarWithDefault('table-current-row-bg-color', #{getCssVarWithDefault(('table', 'current-row-bg-color'), #ecf5ff)})};
+  }
+
+  // ── 斑马纹：虚拟模式 stripe 通过 row-class 实现，与 ElTable stripe 视觉一致 ──
+  // <zh/> 色值对齐 ElTable 的 --el-table-row-striped-bg-color，降级到 --el-fill-color-lighter | <en/> Align with ElTable's --el-table-row-striped-bg-color, fallback to --el-fill-color-lighter
+  .#{$namespace}-table-v2__row.adv-table-v2__stripe-row {
+    background-color: #{getCssVarWithDefault('table-row-striped-bg-color', #{getCssVarWithDefault('fill-color-lighter', #fafafa)})};
+  }
+
+  .adv-table__v2-summary {
+    --adv-table-v2-summary-bg: #{getCssVarWithDefault(('fill-color', 'light'), #f5f7fa)};
+    --adv-table-v2-summary-color: #{getCssVarWithDefault(('text-color', 'regular'), #606266)};
+    display: flex;
+    flex-wrap: nowrap;
+    border-top: 1px solid var(--adv-table-border-color);
+    background-color: var(--adv-table-v2-summary-bg);
+    height: var(--adv-table-summary-row-height, 40px);
+    box-sizing: border-box;
+  }
+
+  // border 模式下汇总单元格纵向内边框——与表头/表体同规则（含末列，否则每列累计 1px 误差向右放大）
+  // Border mode: vertical inner border for summary cells — same rules as header/body (including
+  // the last column, or a 1px-per-column error accumulates rightward)
+  .adv-table-v2--border .adv-table__v2-summary-cell {
+    border-right: 1px solid #{getCssVarWithDefault(('border', 'color-lighter'), #ebeef5)};
+    border-inline-end: 1px solid #{getCssVarWithDefault(('border', 'color-lighter'), #ebeef5)};
+  }
+
+  .adv-table__v2-summary-cell {
+    // 横向内边距与表头/表体单元格一致（default 模式 EP `.el-table .cell` 为 `0 12px`），
+    // 否则合计行文本相对数据列横向偏移；经 `--adv-table-summary-cell-padding-x` 与
+    // default 表尾恢复规则（table.scss）同源，两端不可分裂
+    // Horizontal padding matches header/body cells (default mode EP `.el-table .cell` is `0 12px`);
+    // otherwise the summary text drifts horizontally relative to the data columns. Sourced from
+    // `--adv-table-summary-cell-padding-x`, shared with the default footer restore rule
+    // (table.scss) so the two modes cannot drift apart
+    padding: 0 var(--adv-table-summary-cell-padding-x);
+    box-sizing: border-box;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    line-height: var(--adv-table-summary-row-height, 40px);
+    color: var(--adv-table-v2-summary-color);
+  }
+
+  .adv-table__v2-summary-scrollbar {
+    flex: 1;
+    min-width: 0;
+    height: var(--adv-table-summary-row-height, 40px);
+    // ElTableV2 的表头行宽为 `width - vScrollbarSize`（无论是否真出现垂直滚动条），而 footer
+    // 与 root 等宽；这里预留等量右侧轨道，使汇总行的可用宽度与表头行严格相等——否则
+    // flexGrow/minWidth 参与分配的列会按更宽的容器计算，偏差在行内向右累积。
+    // The ElTableV2 header row is `width - vScrollbarSize` wide (whether or not a vertical scrollbar
+    // actually shows) while the footer spans the full root width; reserving the same gutter here makes
+    // the summary row's available width exactly equal to the header row's — otherwise columns taking
+    // part in distribution via flexGrow/minWidth compute against a wider container and drift rightward.
+    margin-right: var(--adv-table-v2-summary-scrollbar-gutter, 6px);
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-gutter: stable;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
+    .adv-table__v2-summary {
+      display: flex;
+      flex-wrap: nowrap;
+      height: 100%;
+      width: max-content;
+      min-width: 100%;
+    }
+  }
+
+  .adv-table-virtual-renderer {
+    position: relative;
+    overflow: hidden;
+
+    // EP 的 v2 空态容器铺满表体区（内联 top/bottom/width）但为块级、内容靠上；改为 flex 居中，
+    // 与 default 模式 EP `.el-table__empty-block` 的居中表现对齐
+    // EP's v2 empty container spans the body area (inline top/bottom/width) but is block-level with
+    // top-anchored content; make it flex-centered to match default mode's EP `.el-table__empty-block`
+    .#{$namespace}-table-v2__empty {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+
+  .adv-table__virtual-empty-text {
+    // 对齐 default 模式 EP `.el-table__empty-text`（宽 50%、行高 60px、次要色、无额外内边距）
+    // Match default mode's EP `.el-table__empty-text` (50% width, 60px line-height, secondary color, no extra padding)
+    width: 50%;
+    padding: 0;
+    line-height: 60px;
+    text-align: center;
+    color: #{getCssVarWithDefault('text-color-secondary', #{getCssVarWithDefault(('text-color', 'secondary'), #909399)})};
+    font-size: var(--adv-table-cell-font-size, #{getCssVarWithDefault(('font-size', 'base'), 14px)});
+  }
+
+  .adv-table-virtual-renderer__column-resize-proxy {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 0;
+    border-left: 1px solid var(--adv-table-border-color);
+    border-inline-start: 1px solid var(--adv-table-border-color);
+    z-index: 10;
+
+    &--min {
+      border-left-color: #{getCssVarWithDefault('color-danger', #f56c6c)};
+    }
+  }
+
+  // <zh/> 原此处有重复的 `.el-table-v2__header` 字面量行（与上一行插值同义），收敛为单条
+  // <en/> A duplicated `.el-table-v2__header` literal line (synonymous with the interpolation above) converged into one
+  .adv-table-virtual-renderer .#{$namespace}-table-v2__header {
+    position: relative;
+  }
+
+  // <zh/> 注意：禁止给左右固定区加 z-index——EP 原生固定区为 absolute + z-index auto，主网格纵向
+  // <zh/> 滚动条（absolute + z-index 2）天然浮于其上、单条可见；一旦抬高固定区层级，主滚动条即被
+  // <zh/> 完全遮挡（virtual 有固定列时纵向滚动条消失）。固定区自有纵向滚动条按 EP 原生语义保留
+  // <zh/>（悬停固定条时显现），与主条互不遮挡。
+  // <en/> NOTE: never add z-index to the fixed sections — EP natives are absolute + z-index auto so the
+  // <en/> main grid's vertical scrollbar (absolute + z-index 2) floats above, singly visible; raising the
+  // <en/> fixed sections buries the main scrollbar (missing vertical scrollbar with fixed columns).
+  // <en/> The fixed sections keep their own EP-native vertical bars (shown on strip hover), never
+  // <en/> covering the main bar.
+
+  .adv-table__v2-summary-wrapper {
+    --adv-table-v2-summary-bg: #{getCssVarWithDefault(('fill-color', 'light'), #f5f7fa)};
+    --adv-table-v2-summary-color: #{getCssVarWithDefault(('text-color', 'regular'), #606266)};
+    display: flex;
+    height: var(--adv-table-summary-row-height, 40px);
+    overflow: hidden;
+    // 滚动条轨道区域无汇总格覆盖，需由 wrapper 兜底色，否则右侧留出一条与表体等宽的空白缝
+    // No summary cell covers the scrollbar gutter, so the wrapper must carry the background or a
+    // blank seam (as wide as the body gutter) shows at the right edge
+    background-color: var(--adv-table-v2-summary-bg);
+  }
+
+  // Grand top 顶部汇总条带（AG Grid grandTotalRow='top'）——与 footer 同一组件结构保证像素对齐，
+  // 上边框改为下边框（贴表头之下），不参与 ElTableV2 虚拟滚动
+  // Grand top summary strip — same structure as the footer for pixel alignment,
+  // bottom border instead of top (docked below the header), outside ElTableV2 virtualization
+  .adv-table-v2__grand-top-strip {
+    flex: 0 0 auto;
+
+    .adv-table__v2-summary {
+      border-top: none;
+      border-bottom: 1px solid var(--adv-table-border-color);
+    }
+  }
+
+  // 合计行（Grand/Group Total，AG Grid 对齐）— 粗体 + 浅底，与数据行视觉区分
+  // Total rows (grand/group, AG Grid parity) — bold + tinted bg for distinction
+  .#{$namespace}-table-v2__row.adv-table__grand-total,
+  .#{$namespace}-table-v2__row.adv-table__group-total {
+    font-weight: 600;
+    background-color: var(--adv-table-v2-summary-bg, #{getCssVarWithDefault('fill-color-light', #f5f7fa)});
+  }
+
+  .adv-table__v2-summary-fixed {
+    display: flex;
+    flex-shrink: 0;
+    height: 100%;
+  }
+
+  // 左固定区域右侧阴影（分隔线），右固定区域左侧阴影——与 ElTableV2 固定列视觉一致。
+  // 用 inset box-shadow 而非 border：border 会占据 1px 布局宽度，使主区起点相对表头右移 1px，
+  // 之后每一列的边界都带着这个偏移。
+  // Left fixed area right shadow (separator), right fixed area left shadow — visually consistent with
+  // ElTableV2 fixed columns. Uses inset box-shadow instead of border: a border occupies 1px of layout
+  // width and shifts the main area 1px rightwards relative to the header, an offset every later column
+  // boundary inherits.
+  .adv-table__v2-summary-fixed--left {
+    box-shadow: inset -1px 0 0 var(--adv-table-border-color, #{getCssVarWithDefault(('border', 'color-lighter'), #ebeef5)});
+  }
+
+  .adv-table__v2-summary-fixed--right {
+    box-shadow: inset 1px 0 0 var(--adv-table-border-color, #{getCssVarWithDefault(('border', 'color-lighter'), #ebeef5)});
+  }
+}
+
+// Row-pinning strips (virtual renderer top/bottom fixed regions)
+// <zh/> 置于固定列上层，避免 left/right 固定列遮挡条带 | <en/> Above fixed columns to avoid left/right fixed columns covering strips
+.adv-table-v2__pin-strip {
+  position: relative;
+  z-index: 2;
+  overflow: hidden;
+  flex: 0 0 auto;
+  background: #{getCssVarWithDefault('table-tr-bg-color', #{getCssVarWithDefault('bg-color', #fff)})};
+  border-bottom: 1px solid #{getCssVarWithDefault('border-color-lighter', #ebeef5)};
+}
+
+.adv-table-v2__pin-strip--bottom {
+  border-bottom: none;
+  border-top: 1px solid #{getCssVarWithDefault('border-color-lighter', #ebeef5)};
+}
+
+.adv-table-v2__pin-strip__inner {
+  will-change: transform;
+}
+
+.adv-table-v2__pin-strip__cells {
+  display: flex;
+  align-items: stretch;
+}
+
+// F-015：left/main/right 三分区——左/右固定区不随主区横向平移，仅 main 区跟随 scrollLeft
+.adv-table-v2__pin-strip__region {
+  display: flex;
+  align-items: stretch;
+  overflow: hidden;
+}
+
+.adv-table-v2__pin-strip__region--left,
+.adv-table-v2__pin-strip__region--right {
+  flex: 0 0 auto;
+}
+
+.adv-table-v2__pin-strip__region--main {
+  flex: 1 1 auto;
+  min-width: 0;
+  will-change: transform;
+}
+
+.adv-table-v2__pin-strip__cell {
+  flex: 0 0 auto;
+  box-sizing: border-box;
+  padding: var(--adv-table-cell-padding, 8px 12px);
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  border-right: 1px solid #{getCssVarWithDefault('border-color-lighter', #ebeef5)};
+  border-inline-end: 1px solid #{getCssVarWithDefault('border-color-lighter', #ebeef5)};
+
+  &:last-child {
+    border-right: none;
+    border-inline-end: none;
+  }
+}

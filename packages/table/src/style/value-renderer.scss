@@ -1,0 +1,105 @@
+@use 'element-plus/theme-chalk/src/mixins/config.scss' as *;
+@use 'ep-classes' as ep;
+// <zh/> 构建期命名空间单点：EP 的 $namespace 被本包 $ep-namespace 覆盖，本文件内插值均跟随（默认 el，覆盖见 ep-classes 文件头） | <en/> Build-time namespace single-source: EP $namespace is overridden by our $ep-namespace; all interpolations in this file follow (default el, see the ep-classes header for overrides)
+$namespace: ep.$ep-namespace;
+@use 'element-plus/theme-chalk/src/mixins/function.scss' as *;
+@use 'mixins' as *;
+
+.adv-table {
+  .adv-table-progress-cell {
+    width: 100%;
+    min-width: 0;
+
+    .#{$namespace}-progress {
+      width: 100%;
+    }
+  }
+
+  .adv-table__cell-copyable {
+    @include adv-table-color-vars;
+    --adv-table-color-success: #{getCssVarWithDefault(('color', 'success'), #67c23a)};
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+  }
+
+  .adv-table__cell-copyable-icon {
+    font-size: 14px;
+    color: var(--adv-table-text-color-secondary);
+    transition: color var(--adv-table-transition-duration-fast);
+    cursor: pointer;
+
+    &:hover {
+      color: var(--adv-table-color-primary);
+    }
+
+    &.adv-table__cell-copyable-icon--copied {
+      color: var(--adv-table-color-success);
+    }
+  }
+
+  .adv-table__image-cell {
+    --adv-table-image-cell-size: 40px;
+    width: var(--adv-table-image-cell-size);
+    height: var(--adv-table-image-cell-size);
+  }
+
+  .adv-table__option {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0;
+
+    .adv-table__option-divider {
+      display: inline-block;
+      width: 1px;
+      height: 14px;
+      margin: 0 4px;
+      background-color: var(--adv-table-border-color);
+      vertical-align: middle;
+    }
+  }
+}
+
+
+/**
+ * <zh/> 只读评分单元格（静态星形）——与 ElRate 禁用态视觉对齐，无交互、无组件实例开销
+ * <en/> Read-only rating cell (static stars) — visually aligned with ElRate disabled state, no interaction or component cost
+ */
+.adv-table__rate-cell {
+  display: inline-flex;
+  align-items: center;
+}
+.adv-table__rate-cell-star {
+  position: relative;
+  display: inline-block;
+  font-size: 0;
+  line-height: normal;
+  color: #{getCssVarWithDefault(('rate', 'disabled-void-color'), #f0f2f5)};
+}
+.adv-table__rate-cell-star.is-active {
+  color: #{getCssVarWithDefault(('rate', 'fill-color'), #f7ba2a)};
+}
+.adv-table__rate-cell-icon {
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: #{getCssVarWithDefault(('rate', 'icon-margin'), 6px)};
+}
+.adv-table__rate-cell-decimal {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: inline-block;
+  overflow: hidden;
+  color: #{getCssVarWithDefault(('rate', 'fill-color'), #f7ba2a)};
+}
+.adv-table__rate-cell-decimal-icon {
+  display: inline-block;
+  vertical-align: middle;
+}
+.adv-table__rate-cell-text {
+  font-size: #{getCssVarWithDefault(('rate', 'font-size'), 14px)};
+  color: #{getCssVarWithDefault(('rate', 'text-color'), #303133)};
+  vertical-align: middle;
+}

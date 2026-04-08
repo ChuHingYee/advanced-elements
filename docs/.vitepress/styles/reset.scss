@@ -1,0 +1,120 @@
+/* .vitepress/theme/custom.css */
+table {
+  margin: 0;
+}
+
+/* <zh/> `:::demo` 容器块：结构对齐 element-plus 的示例卡片——标题在卡片外，卡片内依次是 showcase、操作栏、可折叠源码
+ * <en/> `:::demo` block, structured like element-plus example cards — title outside the card, then
+ * <en/> showcase / action bar / collapsible source inside it
+ * <zh/> 源码折叠走纯 CSS（首个子元素是 checkbox，操作栏 label 用 `for` 关联 + 兄弟选择器），无 JS 也能展开
+ * <en/> Source folding is pure CSS (the first child is a checkbox wired to the action-bar label by `for`
+ * <en/> plus a sibling selector), so it opens even without JS; only the copy button needs the theme's
+ * <en/> event delegation */
+.demo-block-title {
+  margin: 20px 0 8px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.6;
+}
+
+.demo-block {
+  margin: 0 0 16px;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 8px;
+  overflow: hidden;
+
+  /* 视觉隐藏但仍可聚焦：checkbox 保留键盘切换与屏幕阅读器语义 */
+  .demo-fold-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* <zh/> 示例区常驻可见（element-plus 同款：滚动时不必先点页签），横向可滚避免窄屏把表格压扁
+   * <en/> The showcase is always visible (like element-plus), scrolling horizontally on narrow screens */
+  .demo-showcase {
+    padding: 24px;
+    overflow-x: auto;
+  }
+
+  /* ClientOnly 占位：给未挂载的预览一个最小高度，避免挂载瞬间整页跳动 */
+  .demo-placeholder {
+    min-height: 120px;
+  }
+
+  .demo-op-btns {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 4px;
+    height: 40px;
+    padding: 0 12px;
+    border-top: 1px solid var(--vp-c-divider);
+  }
+
+  .demo-op-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    color: var(--vp-c-text-2);
+    text-decoration: none;
+    border-radius: 6px;
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.2s, background-color 0.2s;
+
+    &:hover {
+      color: var(--vp-c-brand-1);
+      background-color: var(--vp-c-default-soft);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--vp-c-brand-1);
+      outline-offset: 2px;
+    }
+  }
+
+  /* 键盘焦点落在隐藏 checkbox 上：给 label 一圈可见焦点环 */
+  .demo-fold-input:focus-visible ~ .demo-op-btns .demo-op-fold {
+    outline: 2px solid var(--vp-c-brand-1);
+    outline-offset: 2px;
+  }
+
+  .demo-op-icon-done {
+    display: none;
+  }
+
+  /* 复制成功：图标与文案切成对勾，2s 后由主题侧还原 */
+  .demo-op-copy.copied {
+    color: var(--vp-c-success-1, var(--vp-c-green-1));
+
+    .demo-op-icon-copy {
+      display: none;
+    }
+
+    .demo-op-icon-done {
+      display: block;
+    }
+  }
+
+  /* 源码面板默认折叠 */
+  .demo-source {
+    display: none;
+    border-top: 1px solid var(--vp-c-divider);
+  }
+
+  .demo-fold-input:checked ~ .demo-source {
+    display: block;
+  }
+
+  /* 代码面板复用 VitePress 代码块样式，但取消其负边距出血与圆角（外框由 .demo-block 提供） */
+  .demo-source :is(div[class*='language-']) {
+    margin: 0;
+    border-radius: 0;
+    background-color: var(--vp-c-bg-soft);
+  }
+}

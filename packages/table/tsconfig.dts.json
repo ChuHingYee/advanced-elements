@@ -1,0 +1,22 @@
+{
+  "extends": "../../tsconfig.dts.json",
+  "compilerOptions": {
+    "rootDir": "./src",
+    "declarationDir": "./dist"
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/**/*.vue"
+  ],
+  "exclude": [
+    "rolldown.config.mjs",
+    "vitest.config.ts",
+    "vitest.setup",
+    "__tests__",
+    "scripts",
+    "dist",
+    "src/__type-guards__",
+    "src/stories"
+  ]
+}

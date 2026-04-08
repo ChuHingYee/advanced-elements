@@ -1,0 +1,27 @@
+// 默认入口不包含 Element Plus 样式：EP 样式由消费方负责引入
+// （全量 `element-plus/dist/index.css`；unplugin 用户按需注入 + 与库入口按模块去重）。
+// 如需补齐库内部使用的 EP 组件样式，引入 `@advanced-elements/table/style/element-plus`。
+
+// 命名空间兼容桥（运行时 var(--el-*) 别名）：默认构建零输出，自定义构建发射 :root 桥接
+@use './namespace-aliases';
+
+@use './form.scss' as *;
+@use './side-panel.scss' as *;
+@use './header-column-setting.scss' as *;
+@use './column-group.scss' as *;
+@use './header-polling-btn.scss' as *;
+@use './table.scss' as *;
+@use './value-renderer.scss' as *;
+@use './virtual-table.scss' as *;
+@use './hover-option.scss' as *;
+@use './header.scss' as *;
+@use './floating-filter.scss' as *;
+@use './column-filter.scss' as *;
+@use './context-menu.scss' as *;
+@use './filter-panel.scss' as *;
+@use './cell-edit-trigger.scss' as *;
+@use './cell-range-selection.scss' as *;
+@use './tree.scss' as *;
+@use './row-group.scss' as *;
+@use './row-expand.scss' as *;
+@use './rtl.scss' as *;

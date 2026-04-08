@@ -1,0 +1,69 @@
+@use 'element-plus/theme-chalk/src/mixins/config.scss' as *;
+@use 'ep-classes' as ep;
+// <zh/> 构建期命名空间单点：EP 的 $namespace 被本包 $ep-namespace 覆盖，本文件内插值均跟随（默认 el，覆盖见 ep-classes 文件头） | <en/> Build-time namespace single-source: EP $namespace is overridden by our $ep-namespace; all interpolations in this file follow (default el, see the ep-classes header for overrides)
+$namespace: ep.$ep-namespace;
+@use 'element-plus/theme-chalk/src/mixins/function.scss' as *;
+
+.adv-table {
+  .adv-table-search-form {
+    /* 按钮间距对齐 EP 设计规范（4px 网格） */
+    --adv-table-search-form-btn-gap: 8px;
+    --adv-table-search-form-item-gap: 8px;
+
+    position: relative;
+    display: flex;
+    visibility: hidden;
+    flex-wrap: nowrap;
+    overflow: hidden;
+    width: 100%;
+    gap: var(--adv-table-search-form-item-gap);
+
+    &--initialized {
+      visibility: visible;
+    }
+
+    &--expanded {
+      flex-wrap: wrap;
+      overflow: visible;
+    }
+
+    .adv-table-search-form__buttons {
+      margin: 0 0 0 auto;
+
+      /* 重置 EP 默认 .el-button + .el-button { margin-left: 12px } ，
+         使用 gap 属性控制按钮间距，避免 EP 默认样式干扰 */
+      .#{$namespace}-form-item__content {
+        display: flex;
+        align-items: center;
+        gap: var(--adv-table-search-form-btn-gap, 8px);
+      }
+
+      .#{$namespace}-button + .#{$namespace}-button {
+        margin-left: 0;
+      }
+    }
+
+    .#{$namespace}-form-item:not(.adv-table-search-form__buttons) {
+      margin: 0;
+    }
+
+    &__item {
+      position: absolute;
+      z-index: -1;
+      display: inline-flex;
+      align-items: center;
+      opacity: 0;
+    }
+  }
+
+  .adv-table-search-form__button-icon {
+    width: 12px;
+    margin-left: 2px;
+  }
+
+  .adv-table-search-form__item--visible {
+    position: inherit;
+    z-index: 1;
+    opacity: 1;
+  }
+}

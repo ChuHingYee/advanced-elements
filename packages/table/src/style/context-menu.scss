@@ -1,0 +1,160 @@
+@use 'element-plus/theme-chalk/src/mixins/config.scss' as *;
+@use 'ep-classes' as ep;
+// <zh/> 构建期命名空间单点：EP 的 $namespace 被本包 $ep-namespace 覆盖，本文件内插值均跟随（默认 el，覆盖见 ep-classes 文件头） | <en/> Build-time namespace single-source: EP $namespace is overridden by our $ep-namespace; all interpolations in this file follow (default el, see the ep-classes header for overrides)
+$namespace: ep.$ep-namespace;
+@use 'element-plus/theme-chalk/src/mixins/function.scss' as *;
+
+.adv-table-context-menu {
+  --adv-table-context-menu-bg: #{getCssVarWithDefault(('bg-color', 'overlay'), #fff)};
+  --adv-table-context-menu-border-color: #{getCssVarWithDefault(('border-color', 'lighter'), #ebeef5)};
+  --adv-table-context-menu-shadow: #{getCssVar('box-shadow', 'light')};
+  --adv-table-context-menu-z-index: 3000;
+  --adv-table-context-menu-min-width: 160px;
+  --adv-table-context-menu-max-width: 320px;
+  --adv-table-context-menu-item-height: #{getCssVarWithDefault(('dropdown', 'item-height'), 32px)};
+  --adv-table-context-menu-item-padding: 0 16px;
+  --adv-table-context-menu-item-font-size: #{getCssVar('font-size', 'base')};
+  --adv-table-context-menu-item-hover-bg: #{getCssVarWithDefault(('fill-color', 'light'), #f5f7fa)};
+  --adv-table-context-menu-item-active-bg: #{getCssVarWithDefault(('fill-color', ''), #f0f2f5)};
+  --adv-table-context-menu-item-disabled-color: #{getCssVarWithDefault(('text-color', 'placeholder'), #c0c4cc)};
+  --adv-table-context-menu-separator-height: 6px;
+  --adv-table-context-menu-separator-margin: 0 8px;
+  --adv-table-context-menu-border-radius: #{getCssVar('border-radius', 'base')};
+  --adv-table-context-menu-icon-size: 16px;
+  --adv-table-context-menu-icon-margin-right: 8px;
+  --adv-table-context-menu-shortcut-color: #{getCssVarWithDefault(('text-color', 'secondary'), #909399)};
+  --adv-table-context-menu-arrow-size: 12px;
+
+  position: fixed;
+  z-index: var(--adv-table-context-menu-z-index);
+  min-width: var(--adv-table-context-menu-min-width);
+  max-width: var(--adv-table-context-menu-max-width);
+  padding: 4px 0;
+  background: var(--adv-table-context-menu-bg);
+  border: 1px solid var(--adv-table-context-menu-border-color);
+  border-radius: var(--adv-table-context-menu-border-radius);
+  box-shadow: var(--adv-table-context-menu-shadow);
+  outline: none;
+
+  &--submenu {
+  }
+
+  &__group + &__group {
+    border-top: 1px solid var(--adv-table-context-menu-border-color);
+    margin-top: 4px;
+    padding-top: 4px;
+  }
+}
+
+.adv-table-context-menu-item {
+  display: flex;
+  align-items: center;
+  height: var(--adv-table-context-menu-item-height);
+  padding: var(--adv-table-context-menu-item-padding);
+  font-size: var(--adv-table-context-menu-item-font-size);
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+  position: relative;
+
+  &__check {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: var(--adv-table-context-menu-icon-margin-right);
+    flex-shrink: 0;
+    width: var(--adv-table-context-menu-icon-size);
+    height: var(--adv-table-context-menu-icon-size);
+  }
+
+  &__prefix {
+    display: flex;
+    align-items: center;
+    margin-right: var(--adv-table-context-menu-icon-margin-right);
+    flex-shrink: 0;
+  }
+
+  &__icon {
+    width: var(--adv-table-context-menu-icon-size);
+    height: var(--adv-table-context-menu-icon-size);
+    font-size: var(--adv-table-context-menu-icon-size);
+  }
+
+  &__label {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__suffix {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+    padding-left: 16px;
+    flex-shrink: 0;
+  }
+
+  &__shortcut {
+    font-size: #{getCssVar('font-size', 'extra-small')};
+    color: var(--adv-table-context-menu-shortcut-color);
+  }
+
+  &__arrow {
+    display: flex;
+    align-items: center;
+    margin-left: 8px;
+    color: var(--adv-table-context-menu-shortcut-color);
+  }
+
+  &--focused {
+    background: var(--adv-table-context-menu-item-hover-bg);
+  }
+
+  &--expanded {
+    background: var(--adv-table-context-menu-item-hover-bg);
+  }
+
+  &--disabled {
+    color: var(--adv-table-context-menu-item-disabled-color);
+    cursor: not-allowed;
+  }
+
+  &--loading {
+    color: var(--adv-table-context-menu-item-disabled-color);
+    cursor: wait;
+  }
+
+  &:not(&--disabled):not(&--loading):hover {
+    background: var(--adv-table-context-menu-item-hover-bg);
+  }
+
+  &:not(&--disabled):not(&--loading):active {
+    background: var(--adv-table-context-menu-item-active-bg);
+  }
+}
+
+.adv-table-context-menu-separator {
+  height: var(--adv-table-context-menu-separator-height);
+  margin: var(--adv-table-context-menu-separator-margin);
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    border-top: 1px solid var(--adv-table-context-menu-border-color);
+  }
+}
+
+.adv-table-context-menu-enter-active,
+.adv-table-context-menu-leave-active {
+  transition: opacity var(--adv-table-transition-duration-fast) ease, transform var(--adv-table-transition-duration-fast) ease;
+}
+
+.adv-table-context-menu-enter-from,
+.adv-table-context-menu-leave-to {
+  opacity: 0;
+  transform: scaleY(0.9);
+}

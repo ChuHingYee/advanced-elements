@@ -1,0 +1,78 @@
+@use 'mixins' as *;
+@use 'ep-classes' as ep;
+@use 'element-plus/theme-chalk/src/mixins/function.scss' as *;
+
+// default 模式：明细行
+// Default mode: detail row
+.adv-table__detail-row {
+  td {
+    background-color: #{getCssVar('fill-color-lighter')} !important;
+  }
+}
+
+// default 模式：明细内容容器——table.scss 的 `.el-table__cell .cell` flex 覆盖使其成为行向
+// flex item，缺省按内容宽收缩，内嵌表格因此不占满整行；flex:1 与分组头
+// `.adv-table__group-header-cell`（row-group.scss）同款填充
+// Default mode: detail content container — table.scss's `.el-table__cell .cell` flex override
+// makes it a row-direction flex item that shrinks to content width by default, leaving the
+// embedded table unfilled; flex:1 mirrors `.adv-table__group-header-cell` (row-group.scss)
+.adv-table__expand-row {
+  flex: 1;
+  min-width: 0;
+}
+
+.adv-table__detail-cell {
+  padding: 12px 16px;
+}
+
+// virtual 模式：明细行跨列覆盖
+// Virtual mode: detail row spans all columns
+.adv-table__detail-row.#{ep.$ep-table-v2-row} {
+  // <zh/> 锚点格必须留在文档流内：其内容高度是 EP 动态行高测量（getBoundingClientRect）的唯一来源。
+  // <zh/> 隐藏其余行格，锚点格以 flex-grow 独占整行宽度（EP flex 行无 colspan），高度随内容流入行盒参与实测；
+  // <zh/> 绝对定位铺满（inset:0）会使内容脱离文档流，行高停在预估值并裁切内嵌表。
+  // <en/> The anchor cell MUST stay in flow: its content height is the only source for EP's dynamic
+  // <en/> row-height measurement (getBoundingClientRect). Other cells are hidden and the anchor
+  // <en/> grows to own the full row width (EP's flex row has no colspan), so its height flows into
+  // <en/> the row box. Absolute fill (inset:0) would take content out of flow, pinning the row at
+  // <en/> the estimated height and clipping the embedded table.
+  .#{ep.$ep-table-v2-row-cell} {
+    display: none;
+  }
+
+  // <zh/> EP 经 columnsStyles 下发的内联 flex-grow/flex-shrink/flex-basis 只能靠 !important 覆盖
+  // <en/> EP's inline flex-grow/flex-shrink/flex-basis (via columnsStyles) can only be beaten with !important
+  .#{ep.$ep-table-v2-row-cell}:has(.adv-table__detail-cell) {
+    display: flex;
+    flex: 1 1 auto !important;
+    min-width: 0;
+  }
+
+  @supports not selector(:has(*)) {
+    // <zh/> 无 :has() 支持时退化为全部行格可见——仅失去跨列覆盖，内容仍可见且高度可测
+    // <en/> Without :has() support every cell stays visible — only the span coverage is lost;
+    // <en/> content stays visible and measurable
+    .#{ep.$ep-table-v2-row-cell} {
+      display: flex;
+    }
+  }
+
+  .adv-table__detail-cell {
+    padding: 12px 16px;
+    // <zh/> 行高已由内容撑开；overflow:auto 仅作实测异常时的兜底
+    // <en/> The row now sizes to content; overflow:auto only guards against measurement anomalies
+    overflow: auto;
+    background-color: #{getCssVar('fill-color-lighter')} !important;
+    width: 100%;
+    // <zh/> 固定边框盒口径：高度种子（renderDetailRowContent 的 min-height）以边框盒高计量，
+    // <zh/> 固定后方能在任何全局 box-sizing 重置下都把锚点兜底到沉降总高（含自身 padding）
+    // <en/> Pin the border-box caliber: the height seed (renderDetailRowContent's min-height) is
+    // <en/> measured border-box, so pinning it floors the anchor at the settled total height
+    // <en/> (incl. its own padding) under any global box-sizing reset
+    box-sizing: border-box;
+  }
+}
+
+.adv-table__detail-empty-cell {
+  display: none;
+}

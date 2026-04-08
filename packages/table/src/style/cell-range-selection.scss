@@ -1,0 +1,25 @@
+@use 'element-plus/theme-chalk/src/mixins/function.scss' as *;
+
+.adv-table {
+  --adv-table-cell-range-bg: rgba(#{getCssVarWithDefault('color-primary-rgb', (64, 158, 255))}, 0.08);
+  --adv-table-cell-range-border-color: #{getCssVarWithDefault('color-primary', #409eff)};
+
+  &--range-selecting {
+    /** 拖选期间禁止文本选中，避免干扰 | Disable text selection during drag to avoid interference */
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  &__cell--range-selected {
+    position: relative;
+    background: var(--adv-table-cell-range-bg) !important;
+
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border: 1px solid var(--adv-table-cell-range-border-color);
+      pointer-events: none;
+    }
+  }
+}

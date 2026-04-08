@@ -1,0 +1,19 @@
+{
+  "name": "@advanced-elements/rolldown-config",
+  "type": "module",
+  "version": "1.0.0",
+  "private": true,
+  "exports": {
+    ".": "./src/index.mjs"
+  },
+  "main": "./src/index.mjs",
+  "scripts": {
+    "typecheck": "node --check src/index.mjs"
+  },
+  "dependencies": {
+    "@vitejs/plugin-vue": "catalog:",
+    "@vitejs/plugin-vue-jsx": "catalog:",
+    "rolldown": "catalog:",
+    "sass": "catalog:"
+  }
+}

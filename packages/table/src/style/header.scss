@@ -1,0 +1,91 @@
+@use 'element-plus/theme-chalk/src/mixins/config.scss' as *;
+@use 'ep-classes' as ep;
+// <zh/> 构建期命名空间单点：EP 的 $namespace 被本包 $ep-namespace 覆盖，本文件内插值均跟随（默认 el，覆盖见 ep-classes 文件头） | <en/> Build-time namespace single-source: EP $namespace is overridden by our $ep-namespace; all interpolations in this file follow (default el, see the ep-classes header for overrides)
+$namespace: ep.$ep-namespace;
+@use 'element-plus/theme-chalk/src/mixins/function.scss' as *;
+@use 'mixins' as *;
+
+.adv-table {
+  .adv-table__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+
+    &-left,
+    &-right {
+      display: flex;
+      align-items: center;
+      height: 100%;
+      gap: 8px;
+
+      .#{$namespace}-button+.#{$namespace}-button {
+        margin-left: 0;
+      }
+    }
+
+    &-left {
+      justify-content: flex-start;
+    }
+
+    &-right {
+      justify-content: flex-end;
+      gap: 6px;
+    }
+
+    /* Ghost 按钮：无边框，hover 时显示边框 */
+    &-ghost-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--adv-table-text-color-secondary);
+      border-radius: var(--adv-table-border-radius-base);
+      cursor: pointer;
+      transition: color var(--adv-table-transition-duration-fast),
+                  border-color var(--adv-table-transition-duration-fast),
+                  background-color var(--adv-table-transition-duration-fast);
+
+      &:hover {
+        color: var(--adv-table-color-primary);
+        border-color: var(--adv-table-border-color);
+        background: var(--adv-table-fill-color-light);
+      }
+
+      &:active {
+        transform: scale(0.97);
+      }
+
+      &--loading {
+        cursor: not-allowed;
+        opacity: 0.5;
+        pointer-events: none;
+
+        svg {
+          animation: adv-table-spin 1s linear infinite;
+        }
+      }
+    }
+
+    &-divider {
+      width: 1px;
+      height: 16px;
+      background: var(--adv-table-border-color);
+      margin: 0 2px;
+      flex-shrink: 0;
+    }
+  }
+}
+
+@keyframes adv-table-spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}

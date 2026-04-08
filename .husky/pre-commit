@@ -1,0 +1,19 @@
+# <zh/> Git 钩子运行在非交互 shell 中，fnm 管理的 node/pnpm 不在默认 PATH 上——
+# <zh/> 缺 node 时先自举 fnm（默认别名），再执行 lint-staged。
+# <zh/> 工具链完全不可用时告警并放行，不把无 node 环境的贡献者硬挡在门外。
+# <en/> Git hooks run in a non-interactive shell where fnm-managed node/pnpm are not on PATH —
+# <en/> bootstrap fnm (default alias) when node is missing, then run lint-staged.
+# <en/> Warn-and-pass when no toolchain exists at all, so contributors without node are not hard-blocked.
+if ! command -v node >/dev/null 2>&1; then
+  if command -v fnm >/dev/null 2>&1; then
+    eval "$(fnm env --shell bash)"
+    fnm use --silent-if-unchanged 2>/dev/null || fnm use default 2>/dev/null || true
+  fi
+fi
+
+if ! command -v node >/dev/null 2>&1; then
+  echo "husky - node not found; skipping pre-commit lint-staged. Install node (or fnm) to enable it." >&2
+  exit 0
+fi
+
+pnpm exec lint-staged

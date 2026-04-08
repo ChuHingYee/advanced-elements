@@ -1,0 +1,177 @@
+@use 'element-plus/theme-chalk/src/mixins/config.scss' as *;
+@use 'ep-classes' as ep;
+// <zh/> 构建期命名空间单点：EP 的 $namespace 被本包 $ep-namespace 覆盖，本文件内插值均跟随（默认 el，覆盖见 ep-classes 文件头） | <en/> Build-time namespace single-source: EP $namespace is overridden by our $ep-namespace; all interpolations in this file follow (default el, see the ep-classes header for overrides)
+$namespace: ep.$ep-namespace;
+@use 'element-plus/theme-chalk/src/mixins/function.scss' as *;
+@use 'mixins' as *;
+
+/**
+ * 列组管理专属样式
+ * Column group management dedicated styles
+ *
+ * 面板布局/动画由 side-panel.scss 的 adv-table-side-panel 统一管理
+ * Panel layout/animation is managed centrally by adv-table-side-panel in side-panel.scss
+ */
+
+/* ── Tree ── */
+.adv-table-column-group-tree {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
+  &__scrollbar {
+    flex: 1;
+    overflow: hidden;
+  }
+
+  &__list {
+    min-height: 100%;
+  }
+
+  &__footer {
+    flex-shrink: 0;
+    padding: 8px 12px;
+    border-top: 1px solid #{getCssVarWithDefault('border-color-lighter', #ebeef5)};
+  }
+
+  &__add-icon {
+    margin-right: 4px;
+  }
+}
+
+/* ── Node ── */
+.adv-table-column-group-node {
+  --adv-table-column-group-node-height: 32px;
+  --adv-table-column-group-node-radius: 4px;
+  --adv-table-column-group-drag-handle-width: 20px;
+
+  &__content {
+    display: flex;
+    align-items: center;
+    height: var(--adv-table-column-group-node-height);
+    gap: 4px;
+    border-radius: var(--adv-table-column-group-node-radius);
+    cursor: grab;
+    transition: background-color 0.15s;
+
+    &:hover {
+      background-color: #{getCssVarWithDefault('fill-color-light', #f5f7fa)};
+    }
+
+    &:active {
+      cursor: grabbing;
+    }
+  }
+
+  &__drag-handle {
+    flex-shrink: 0;
+    width: var(--adv-table-column-group-drag-handle-width);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: grab;
+    color: #{getCssVarWithDefault('text-color-secondary', #909399)};
+
+    &:active {
+      cursor: grabbing;
+    }
+  }
+
+  &__group-icon {
+    flex-shrink: 0;
+    font-size: 10px;
+    color: #{getCssVarWithDefault('text-color-secondary', #909399)};
+    transition: transform 0.2s;
+  }
+
+  &__label {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 13px;
+    color: #{getCssVarWithDefault('text-color-regular', #606266)};
+
+    &--group {
+      font-weight: 500;
+      color: #{getCssVarWithDefault('text-color-primary', #303133)};
+    }
+  }
+
+  &__rename-input {
+    flex: 1;
+    min-width: 0;
+
+    .#{$namespace}-input__inner {
+      height: 24px;
+      font-size: 13px;
+    }
+  }
+
+  &__empty-hint {
+    flex-shrink: 0;
+    font-size: 11px;
+    color: #{getCssVarWithDefault('text-color-placeholder', #a8abb2)};
+    font-style: italic;
+  }
+
+  &__actions {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    margin-left: auto;
+    opacity: 0;
+    transition: opacity 0.15s;
+
+    .adv-table-column-group-node__content:hover & {
+      opacity: 1;
+    }
+  }
+
+  &__action-btn {
+    width: 20px;
+    height: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #{getCssVarWithDefault('text-color-secondary', #909399)};
+    border-radius: 3px;
+    transition: color 0.2s, background-color 0.15s;
+
+    &:hover {
+      color: #{getCssVarWithDefault('color-primary', #409eff)};
+      background-color: #{getCssVarWithDefault('fill-color-light', #f5f7fa)};
+    }
+
+    &--danger:hover {
+      color: #{getCssVarWithDefault('color-danger', #f56c6c)};
+    }
+  }
+
+  &__children {
+    min-height: 0;
+  }
+}
+
+/* ── Drag states ── */
+.adv-table-column-group-node--ghost {
+  opacity: 0.5;
+  background: var(--adv-table-drag-ghost-bg);
+}
+
+.adv-table-column-group-node--chosen {
+  background: var(--adv-table-drag-chosen-bg);
+}
+
+.adv-table-column-group-node--no-drop {
+  cursor: no-drop !important;
+  opacity: 0.5;
+}
+
+.adv-table-column-group-node--drop-target {
+  background-color: var(--adv-table-drag-ghost-bg);
+  border-top: 2px solid var(--adv-table-color-primary);
+}

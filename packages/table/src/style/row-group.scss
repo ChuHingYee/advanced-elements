@@ -1,0 +1,69 @@
+// 跨列骨架（定位参照系 + 非锚点列隐藏 + :has() 回退）复用 mixin，仅保留各行锚点的额外样式
+// The span skeleton (containing block + non-anchor hiding + :has() fallback) comes from the mixin;
+// only each row's anchor-specific styles stay in place
+@use 'mixins' as *;
+@use 'ep-classes' as ep;
+@use 'element-plus/theme-chalk/src/mixins/function.scss' as *;
+
+// 通用：分组头行（两种模式共用）
+// Common: group header row (shared by both modes)
+.adv-table__group-header-row {
+  background-color: #{getCssVar('fill-color-light')};
+  font-weight: 600;
+  cursor: pointer;
+}
+
+// default 模式：分组头行 td 背景色
+// Default mode: background of group header row td
+// Note: EP el-table 的 <td> 和 .cell 由框架内部渲染，无法添加自定义类名，必须使用后代组合器
+// Note: EP el-table's <td> and .cell are rendered internally and cannot receive custom classes, so descendant combinators are required
+.adv-table__group-header-row td {
+  background-color: #{getCssVar('fill-color-light')} !important;
+
+  // .cell 改为 flex 布局使子元素自动撑满宽度，min-height 替代 line-height 撑高
+  // .cell switched to flex so children fill the width; min-height replaces line-height to set the height
+  .cell {
+    display: flex;
+    align-items: center;
+    min-height: 23px;
+  }
+}
+
+.adv-table__group-header-cell {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: var(--adv-table-cell-padding, 8px 12px);
+  flex: 1;
+}
+
+// 分组头值 — 统一两种模式的文字颜色
+// Group header value — unify text color across both modes
+.adv-table__group-header-value {
+  color: #{getCssVar('text-color-primary')};
+  margin-right: 4px;
+}
+
+.adv-table__group-header-count {
+  color: #{getCssVar('text-color-secondary')};
+  font-weight: 400;
+  font-size: 12px;
+}
+
+// virtual 模式：分组头行跨列覆盖
+// Virtual mode: group header row spans all columns
+.adv-table__group-header-row.#{ep.$ep-table-v2-row} {
+  @include adv-table-v2-span-row('.adv-table__group-header-cell');
+
+  // 包含 adv-table__group-header-cell 的列保持可见（作为绝对定位的锚点）
+  // The column containing adv-table__group-header-cell stays visible (serves as the anchor for absolute positioning)
+  .adv-table__group-header-cell {
+    padding-left: 12px;
+  }
+}
+
+// virtual 模式：分组头行空列占位
+// Virtual mode: empty column placeholder for the group header row
+.adv-table__group-header-empty-cell {
+  display: none;
+}

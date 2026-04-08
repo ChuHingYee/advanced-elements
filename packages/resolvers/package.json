@@ -1,0 +1,59 @@
+{
+  "name": "@advanced-elements/resolvers",
+  "type": "module",
+  "version": "0.1.0-beta.0",
+  "description": "Resolvers for unplugin-vue-components — auto-import advanced-elements components",
+  "author": "ChuHingYee",
+  "license": "MIT",
+  "homepage": "https://github.com/ChuHingYee/advanced-elements#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ChuHingYee/advanced-elements.git",
+    "directory": "packages/resolvers"
+  },
+  "bugs": {
+    "url": "https://github.com/ChuHingYee/advanced-elements/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "vue3",
+    "element-plus",
+    "unplugin-vue-components",
+    "resolver",
+    "advanced-elements"
+  ],
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "LICENSE",
+    "README.md",
+    "dist"
+  ],
+  "scripts": {
+    "clean": "rimraf ./dist",
+    "dev": "tsc --watch",
+    "build": "rimraf ./dist && tsc -p tsconfig.build.json",
+    "prepack": "rimraf --glob \"./dist/**/*.map\"",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "coverage": "vitest run --coverage"
+  },
+  "devDependencies": {
+    "rimraf": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

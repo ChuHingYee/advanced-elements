@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.dts.json",
+  "compilerOptions": {
+    "rootDir": "./src",
+    "declarationDir": "./dist"
+  },
+  "include": [
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "rolldown.config.mjs",
+    "dist"
+  ]
+}

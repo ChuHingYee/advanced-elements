@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.json",
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/**/*.vue"
+  ],
+  "exclude": [
+    "rolldown.config.mjs",
+    "vitest.config.ts",
+    "vitest.setup",
+    "__tests__",
+    "scripts"
+  ]
+}

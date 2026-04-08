@@ -1,0 +1,23 @@
+{
+  "extends": "@vue/tsconfig/tsconfig.dom.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+
+    // <zh/> 与根 tsconfig.base.json 对齐：play 经 paths 直连各包 src，同一份源码须用同一套规则检查，
+    // <zh/> 否则包自有 typecheck 全绿而这里误报（lib 要 ESNext 才有 .at()，NUIA 在包侧从未启用）。
+    // <en/> Aligned with the root tsconfig.base.json: play links each package's src directly via paths,
+    // <en/> so the same sources must be checked under the same rules — otherwise the packages' own
+    // <en/> typechecks pass while this one false-positives (lib needs ESNext for .at(), NUIA was never on package-side).
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+
+    "paths": {
+      "@/*": ["./src/*"],
+      "@advanced-elements/table": ["../packages/table/src/index.ts"],
+      "@advanced-elements/config-provider": ["../packages/config-provider/src/index.ts"],
+      "@advanced-elements/elements": ["../packages/elements/src/index.ts"]
+    },
+    "noUncheckedIndexedAccess": false
+  },
+  "include": ["env.d.ts", "src/**/*", "src/**/*.vue"],
+  "exclude": ["src/**/__tests__/*"]
+}
