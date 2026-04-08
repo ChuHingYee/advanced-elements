@@ -1,0 +1,664 @@
+@use 'element-plus/theme-chalk/src/mixins/config.scss' as *;
+@use 'ep-classes' as ep;
+// <zh/> 构建期命名空间单点：EP 的 $namespace 被本包 $ep-namespace 覆盖，本文件内插值均跟随（默认 el，覆盖见 ep-classes 文件头） | <en/> Build-time namespace single-source: EP $namespace is overridden by our $ep-namespace; all interpolations in this file follow (default el, see the ep-classes header for overrides)
+$namespace: ep.$ep-namespace;
+@use 'element-plus/theme-chalk/src/mixins/function.scss' as *;
+@use 'mixins' as *;
+
+.adv-table {
+  /* 间距对齐 EP 4px 网格系统（4/8/12/16/20/24） | Spacing aligned to EP 4px grid system (4/8/12/16/20/24) */
+  --adv-table-padding: 16px;
+  --adv-table-padding-sm: 12px;
+  --adv-table-border-radius: #{getCssVar('border-radius', 'base')};
+  --adv-table-header-padding: 12px 16px;
+  --adv-table-icon-margin-left: 12px;
+  --adv-table-main-margin-bottom: 8px;
+  --adv-table-pagination-padding: 12px 16px;
+  --adv-table-pagination-sticky-z: 8;
+  --adv-table-bg-color: #{getCssVarWithDefault(('bg', 'color'), #fff)};
+  --adv-table-font-size-base: #{getCssVarWithDefault(('font-size', 'base'), 14px)};
+  --adv-table-drag-ghost-bg: #{getCssVarWithDefault(('color', 'primary-light-7'), #c6e2ff)};
+  --adv-table-drag-chosen-bg: #{getCssVarWithDefault(('color', 'primary-light-3'), #79bbff)};
+  --adv-table-drag-fallback-bg: #{getCssVarWithDefault(('color', 'white'), #fff)};
+  --adv-table-drag-fallback-shadow: #{getCssVar('box-shadow', 'light')};
+  --adv-table-drag-fallback-z: 5000;
+  @include adv-table-color-vars;
+  --adv-table-color-info: #{getCssVarWithDefault(('color', 'info'), #909399)};
+  --adv-table-color-white: #{getCssVarWithDefault(('color', 'white'), #fff)};
+  --adv-table-border: #{getCssVarWithDefault(('border'),1px solid #dcdfe6)};
+  --adv-table-header-background: #{getCssVarWithDefault(('fill-color', 'lighter'),#fafafa)};
+  --adv-table-header-cell-height: 50px;
+  --adv-table-cell-padding: 8px 12px;
+  --adv-table-header-cell-padding: 8px 12px;
+  --adv-table-floating-filter-height: 32px;
+  --adv-table-cell-font-size: 14px;
+  --adv-table-row-height: 48px;
+  --adv-table-header-title-color: #{getCssVarWithDefault(('text-color', 'primary'), #303133)};
+
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow: hidden;
+
+  div,
+  form {
+    box-sizing: border-box;
+  }
+
+  &__form {
+    flex-shrink: 0;
+    padding: var(--adv-table-padding);
+    border-radius: var(--adv-table-border-radius);
+    border: var(--adv-table-border);
+  }
+
+  &__container {
+    flex: 1;
+    height: 0;
+    padding: var(--adv-table-padding);
+    border-radius: var(--adv-table-border-radius);
+    border: var(--adv-table-border);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  /**
+   * <zh/> bare 布局：无边框、无内边距，子元素间距为 --adv-table-padding
+   * <en/> bare layout: no border, no padding, child gap is --adv-table-padding
+   */
+  &--layout-bare {
+    .adv-table__container {
+      padding: 0;
+      border: none;
+      border-radius: 0;
+      gap: var(--adv-table-padding-sm);
+    }
+
+    .adv-table__form {
+      padding: 0;
+      border: none;
+      border-radius: 0;
+    }
+  }
+
+  /**
+   * <zh/> virtual 模式下 default slot 被忽略时的警告占位样式
+   * <en/> Warning placeholder style when default slot is ignored in virtual mode
+   */
+  &__virtual-slot-warning {
+    padding: 8px 12px;
+    border: 1px solid #{getCssVar('color-danger')};
+    background: #{getCssVar('color-danger-light-9')};
+    color: #{getCssVar('color-danger')};
+    border-radius: 4px;
+    font-size: 13px;
+  }
+
+  &__body-row {
+    display: flex;
+    flex: 1;
+    height: 0;
+    min-height: 0;
+    margin-bottom: var(--adv-table-main-margin-bottom);
+
+    // <zh/> 默认渲染器单根包裹层——display: contents 不生成盒模型，
+    // 子元素直接作为 .adv-table__body-row 的 flex 子项参与布局（保持 order/flex 规则生效）。
+    // <en/> Default renderer single-root wrapper — display: contents generates no box,
+    // children participate directly as flex items of .adv-table__body-row (order/flex rules keep working).
+    .adv-table-default-renderer {
+      display: contents;
+    }
+
+    // 布局顺序依赖父子选择器：flex order 控制子元素排列顺序，扁平类名无法表达
+    // Layout order relies on parent-child selectors: flex order controls child arrangement, impossible with flat class names
+    .adv-table-virtual-renderer {
+      width: 0;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .adv-table__main {
+      order: 1;
+      width: 0;
+      flex: 1;
+      min-width: 0;
+      height: 100%;
+    }
+
+    .#{$namespace}-table {
+      height: 100%;
+    }
+
+    .adv-table-side-panel {
+      flex-shrink: 0;
+    }
+
+    .adv-table__side-buttons {
+      flex-shrink: 0;
+    }
+
+    &--filter-right {
+      .adv-table__main {
+        order: 1;
+      }
+
+      .adv-table-side-panel--right {
+        order: 2;
+      }
+
+      .adv-table__side-buttons {
+        order: 3;
+      }
+    }
+
+    &--filter-left {
+      .adv-table-side-panel--left {
+        order: 1;
+      }
+
+      .adv-table__main {
+        order: 2;
+      }
+
+      .adv-table__side-buttons {
+        order: 3;
+      }
+    }
+
+    &--filter-both {
+      .adv-table-side-panel--left {
+        order: 1;
+      }
+
+      .adv-table__main {
+        order: 2;
+      }
+
+      .adv-table-side-panel--right {
+        order: 3;
+      }
+
+      .adv-table__side-buttons {
+        order: 4;
+      }
+    }
+  }
+
+  &__main {
+    flex: 1;
+    min-width: 0;
+    height: 0;
+
+    .#{$namespace}-table__header {
+      background: var(--adv-table-header-background);
+
+      tr th {
+        background: var(--adv-table-header-background);
+      }
+    }
+
+    .#{$namespace}-table__header-wrapper {
+      background: var(--adv-table-header-background);
+    }
+
+  }
+
+  .#{$namespace}-table .#{$namespace}-table__cell {
+    padding: 0;
+    height: 1px;
+  }
+
+  /* ── 方向键网格导航焦点环 | Arrow-key grid navigation focus ring ──────────────
+     <zh/> 单元格 span 均带 tabindex=-1（键盘管线入口）。:focus-visible 仅在键盘驱动聚焦时
+     <zh/> 命中，鼠标点击不显示环；inset box-shadow 复用范围选择的描边技法。
+     <en/> Every cell span carries tabindex=-1 (keyboard-pipeline entry). :focus-visible matches
+     <en/> keyboard-initiated focus only — no ring on mouse clicks; the inset box-shadow reuses
+     <en/> the range-selection border technique. */
+  .adv-table__cell:focus-visible {
+    outline: none;
+    box-shadow: inset 0 0 0 2px #{getCssVar('color-primary')};
+    border-radius: 2px;
+  }
+
+  .#{$namespace}-table .#{$namespace}-table__cell .cell {
+    padding: 0;
+    line-height: inherit;
+    height: 100%;
+    display: flex;
+    align-items: center;
+  }
+
+  /**
+   * 对齐 virtual 模式：default 模式（ElTable）行高由 --adv-table-row-height 驱动。
+   * virtual 模式通过 ElTableV2 的 :row-height prop 接收 mergedSizeConfig.rowHeight，
+   * 而 default 模式无对应 prop，需通过 CSS 变量设置 tr 高度以与 virtual 模式对齐。
+   *
+   * Align with virtual mode: in default mode (ElTable) the row height is driven by --adv-table-row-height.
+   * Virtual mode receives mergedSizeConfig.rowHeight via ElTableV2's :row-height prop, but default mode has
+   * no such prop. el-table row height is determined by the tr height, so setting it here aligns with virtual mode.
+   */
+  .#{$namespace}-table tbody tr {
+    height: var(--adv-table-row-height, 48px);
+  }
+
+  .#{$namespace}-table .#{$namespace}-table__cell .cell>.#{$namespace}-table__expand-icon {
+    flex-shrink: 0;
+  }
+
+  .#{$namespace}-table th.#{$namespace}-table__cell .cell {
+    height: 100%;
+  }
+
+  @for $i from 2 through 5 {
+    .#{$namespace}-table th.#{$namespace}-table__cell[rowspan="#{$i}"] .cell .adv-table__header-cell {
+      min-height: calc(var(--adv-table-header-cell-height, 50px) * #{$i});
+    }
+  }
+
+  .adv-table__switch.#{$namespace}-switch.is-disabled {
+    opacity: 1;
+  }
+
+  &__page {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--adv-table-pagination-padding);
+    background: var(--adv-table-bg-color);
+    flex-shrink: 0;
+    overflow: auto;
+
+    &--sticky {
+      position: sticky;
+      bottom: 0;
+      z-index: var(--adv-table-pagination-sticky-z);
+    }
+
+    &--manual {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: var(--adv-table-color-info);
+      font-size: var(--adv-table-font-size-base);
+    }
+
+    &-left {
+      display: flex;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    &-right {
+      display: flex;
+      align-items: center;
+      margin-left: auto;
+      margin-inline-start: auto;
+    }
+  }
+
+  .adv-table-column-group-header {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+
+    &__text {
+      flex: 1;
+    }
+
+    &__toggle {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      border-radius: #{getCssVar('border-radius', 'base')};
+      cursor: pointer;
+      color: var(--adv-table-color-info);
+      transition: background-color var(--adv-table-transition-duration-fast), color var(--adv-table-transition-duration-fast);
+
+      &:hover {
+        background-color: var(--adv-table-color-primary);
+        color: var(--adv-table-color-white);
+      }
+
+      &--expanded {
+        transform: rotate(90deg);
+      }
+
+      &--collapsed {
+        transform: rotate(0deg);
+      }
+    }
+  }
+
+  .adv-table__header-cell-content {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+  }
+
+  /**
+   * default 模式表头外层由 renderHeaderDragMarker 包裹 .adv-table__header-cell（见 renderer-common.tsx），
+   * 该外层已被 virtual-table.scss 的 .adv-table__header-cell:not(.adv-table__v2-header-cell) 规则赋予了
+   * padding（8px 12px）。若在此处再给 .adv-table__header-cell-content 添加 padding，会导致双重 padding。
+   * 因此此处仅保留字重设置，padding 由外层 .adv-table__header-cell 统一提供，与 virtual 模式保持一致。
+   *
+   * In default mode the header is wrapped by .adv-table__header-cell (via renderHeaderDragMarker in
+   * renderer-common.tsx), which already receives padding (8px 12px) from the
+   * .adv-table__header-cell:not(.adv-table__v2-header-cell) rule in virtual-table.scss. Adding padding
+   * here on .adv-table__header-cell-content would cause double padding. Only font-weight is kept here;
+   * padding is provided by the outer .adv-table__header-cell wrapper, consistent with virtual mode.
+   */
+  .#{$namespace}-table {
+    .adv-table__header-cell-content {
+      font-weight: 600;
+    }
+  }
+
+  .adv-table__header-cell-text {
+    flex: 1;
+    min-width: 0;
+    display: inline-block;
+    align-items: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--adv-table-header-title-color);
+  }
+
+  .adv-table__header-cell-actions {
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  .adv-table__header-cell--with-floating {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .adv-table__header-cell-floating {
+    flex-shrink: 0;
+    width: 100%;
+  }
+
+  .adv-table-floating-filter {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    margin-top: 2px;
+
+    &__number-row {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .#{$namespace}-input-group__prepend {
+      max-width: 20%;
+    }
+  }
+
+  .adv-table__main .#{$namespace}-table__header-wrapper .#{$namespace}-table__header .cell {
+    overflow: visible;
+    background: var(--adv-table-header-background);
+  }
+
+  .#{$namespace}-table.is-scrolling-none th.#{$namespace}-table-fixed-column--left,
+  .#{$namespace}-table.is-scrolling-none th.#{$namespace}-table-fixed-column--right {
+    background: var(--adv-table-header-background);
+  }
+
+  // Note: 覆盖 EP .el-table thead.is-group th 的背景和高度 | Override EP .el-table thead.is-group th background and height
+  .#{$namespace}-table thead.is-group th.#{$namespace}-table__cell {
+    background: var(--adv-table-header-background);
+    height: var(--adv-table-header-cell-height, 50px);
+  }
+
+  // 合并表头（colspan 分组头）内层自有表头胞同样撑满单元格——EP 的 .cell 在分组头下
+  // 可能因内容短而收缩，折叠 toggle 与排序图标错位；与 virtual 侧 placeholder 口径对齐，
+  // 保证合并场景下样式覆盖每一个表头单元格。
+  // Grouped (colspan) header inner cell also fills the th — EP's .cell can shrink on
+  // short content, misplacing the collapse toggle / sort icons; aligns with the
+  // virtual-side placeholder caliber so merged headers style every header cell.
+  .#{$namespace}-table thead.is-group th.#{$namespace}-table__cell .cell .adv-table__header-cell {
+    width: 100%;
+    min-height: var(--adv-table-header-cell-height, 50px);
+  }
+
+  /* Default 模式 summary 行高与 virtual 模式对齐 | Default mode summary row height aligned with virtual mode */
+  .#{$namespace}-table__footer {
+    height: var(--adv-table-summary-row-height, 40px);
+  }
+
+  /* 合计行（Grand/Group Total，AG Grid 对齐）— 粗体 + 浅底，与数据行视觉区分；sticky 背景由行内样式保证
+     Total rows (grand/group, AG Grid parity) — bold + tinted bg for distinction; sticky backgrounds come from inline row styles */
+  .#{$namespace}-table__row.adv-table__grand-total,
+  .#{$namespace}-table__row.adv-table__group-total {
+    font-weight: 600;
+    background-color: #{getCssVarWithDefault('fill-color-light', #f5f7fa)};
+  }
+
+  /* Shift 按下时阻止文字选择（Shift+Click 行范围选择） | Prevent text selection while Shift is held (Shift+Click row range selection) */
+  &--no-select {
+    user-select: none;
+  }
+}
+
+body.adv-table-resizing {
+  user-select: none;
+}
+
+body.adv-table-resizing--col {
+  cursor: col-resize;
+}
+
+body.adv-table-resizing--row {
+  cursor: grabbing;
+}
+
+.adv-table__row--ghost {
+  opacity: 0.8;
+  z-index: var(--adv-table-drag-fallback-z);
+  box-shadow: var(--adv-table-drag-fallback-shadow);
+  background: var(--adv-table-drag-ghost-bg);
+  border-radius: var(--adv-table-border-radius-base);
+}
+
+.adv-table__row--chosen {
+  background-color: var(--adv-table-drag-chosen-bg);
+}
+
+.adv-table__row--drag {
+  cursor: grabbing !important;
+  background: var(--adv-table-drag-fallback-bg);
+}
+
+.adv-table__row-fallback {
+  z-index: var(--adv-table-drag-fallback-z);
+  box-shadow: var(--adv-table-drag-fallback-shadow);
+  cursor: grabbing;
+  background: var(--adv-table-drag-fallback-bg);
+  border-radius: var(--adv-table-border-radius-base);
+  /**
+   * fallback 模式下 SortableJS 通过 JS 高频更新 transform 跟随鼠标，
+   * In fallback mode SortableJS updates transform frequently via JS to follow the cursor,
+   * 提升至独立合成层避免每帧重排主文档，显著降低拖拽时主线程开销。
+   * promoting to a separate compositor layer avoids per-frame reflow of the main document and reduces main-thread cost during drag.
+   */
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+.adv-table__row--no-drop {
+  cursor: no-drop !important;
+  opacity: 0.5;
+}
+
+.adv-table__row--drop-target {
+  background-color: var(--adv-table-drag-ghost-bg) !important;
+  border-top: 2px solid var(--adv-table-color-primary);
+}
+
+.adv-table__row--invalid-drop {
+  position: relative;
+
+  &::after {
+    position: absolute;
+    top: 50%;
+    right: 8px;
+    inset-inline-end: 8px;
+    width: 18px;
+    height: 18px;
+    content: '';
+    background-color: #{getCssVar('color-danger')};
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zM4 12c0-4.42 3.58-8 8-8 1.85 0 3.55.63 4.9 1.69L5.69 16.9A7.902 7.902 0 014 12zm8 8c-1.85 0-3.55-.63-4.9-1.69L18.31 7.1A7.902 7.902 0 0120 12c0 4.42-3.58 8-8 8z'/%3E%3C/svg%3E");
+    mask-size: contain;
+    mask-repeat: no-repeat;
+    mask-position: center;
+    transform: translateY(-50%);
+    pointer-events: none;
+    z-index: 10;
+  }
+}
+
+.adv-table-ghost-info {
+  position: absolute;
+  top: -2px;
+  left: 8px;
+  inset-inline-start: 8px;
+  padding: 1px 8px;
+  font-size: #{getCssVar('font-size', 'extra-small')};
+  line-height: 18px;
+  color: var(--adv-table-drag-fallback-bg);
+  background-color: var(--adv-table-color-primary);
+  border-radius: #{getCssVar('border-radius', 'small')};
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: calc(100% - 16px);
+  pointer-events: none;
+  z-index: 10;
+
+  &--multi {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding-right: 6px;
+  }
+
+  &__count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--adv-table-color-primary);
+      background-color: var(--adv-table-drag-fallback-bg);
+      border-radius: #{getCssVar('border-radius', 'small')};
+    }
+  }
+
+.adv-table-column-drag {
+  --adv-table-column-drag-ghost-bg: var(--adv-table-drag-ghost-bg);
+  --adv-table-column-drag-chosen-bg: var(--adv-table-drag-chosen-bg);
+  --adv-table-column-drag-fallback-bg: var(--adv-table-drag-fallback-bg);
+  --adv-table-column-drag-fallback-shadow: var(--adv-table-drag-fallback-shadow);
+  --adv-table-column-drag-fallback-z: var(--adv-table-drag-fallback-z);
+
+  &__draggable {
+    cursor: grab;
+  }
+
+  &__ghost {
+    opacity: 0.8;
+    z-index: var(--adv-table-column-drag-fallback-z);
+    box-shadow: var(--adv-table-column-drag-fallback-shadow);
+    background: var(--adv-table-column-drag-ghost-bg);
+    border-radius: var(--adv-table-border-radius-base);
+  }
+
+  &__chosen {
+    background-color: var(--adv-table-column-drag-chosen-bg);
+  }
+
+  &__drag {
+    cursor: grabbing !important;
+    background: var(--adv-table-column-drag-fallback-bg);
+  }
+
+  &__fallback {
+    z-index: var(--adv-table-column-drag-fallback-z);
+    box-shadow: var(--adv-table-column-drag-fallback-shadow);
+    cursor: grabbing;
+    background: var(--adv-table-column-drag-fallback-bg);
+    border-radius: var(--adv-table-border-radius-base);
+  }
+
+  &__no-drop {
+    cursor: no-drop !important;
+    opacity: 0.5;
+  }
+
+  &__drop-target {
+    background-color: var(--adv-table-column-drag-ghost-bg) !important;
+    border-left: 2px solid var(--adv-table-color-primary);
+    border-inline-start: 2px solid var(--adv-table-color-primary);
+  }
+}
+
+.adv-table-row-drop-indicator {
+  --adv-table-row-drop-indicator-color: var(--adv-table-color-primary);
+  --adv-table-row-drop-indicator-invalid-color: #{getCssVar('color-danger')};
+  --adv-table-row-drop-indicator-width: 2px;
+  --adv-table-row-drop-indicator-arrow-size: 6px;
+  position: absolute;
+  left: 0;
+  inset-inline-start: 0;
+  z-index: 10;
+  pointer-events: none;
+
+  &__line {
+    width: 100%;
+    height: var(--adv-table-row-drop-indicator-width);
+    background-color: var(--adv-table-row-drop-indicator-color);
+  }
+
+  &__arrow {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    inset-inline-start: 0;
+    width: 0;
+    height: 0;
+    border-top: var(--adv-table-row-drop-indicator-arrow-size) solid transparent;
+    border-bottom: var(--adv-table-row-drop-indicator-arrow-size) solid transparent;
+    border-left: var(--adv-table-row-drop-indicator-arrow-size) solid var(--adv-table-row-drop-indicator-color);
+    border-inline-start: var(--adv-table-row-drop-indicator-arrow-size) solid var(--adv-table-row-drop-indicator-color);
+    transform: translateY(-50%);
+  }
+
+  &--invalid {
+    --adv-table-row-drop-indicator-color: var(--adv-table-row-drop-indicator-invalid-color);
+  }
+
+  &--invalid &__line {
+    background-color: var(--adv-table-row-drop-indicator-invalid-color);
+  }
+
+  &--invalid &__arrow {
+    border-left-color: var(--adv-table-row-drop-indicator-invalid-color);
+  }
+}

@@ -1,0 +1,16 @@
+# <zh/> 同 pre-commit：先自举 fnm，再执行提交信息校验（Conventional Commits）。
+# <en/> Same as pre-commit: bootstrap fnm first, then run the commit-message check
+# <en/> (Conventional Commits).
+if ! command -v node >/dev/null 2>&1; then
+  if command -v fnm >/dev/null 2>&1; then
+    eval "$(fnm env --shell bash)"
+    fnm use --silent-if-unchanged 2>/dev/null || fnm use default 2>/dev/null || true
+  fi
+fi
+
+if ! command -v pnpm >/dev/null 2>&1; then
+  echo "husky - pnpm not found; skipping commit message check. Install node+pnpm (or fnm) to enable it." >&2
+  exit 0
+fi
+
+pnpm verify:commit "$1"

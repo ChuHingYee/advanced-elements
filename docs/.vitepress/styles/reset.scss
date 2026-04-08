@@ -1,0 +1,97 @@
+/* .vitepress/theme/custom.css */
+table {
+  margin: 0;
+}
+
+/* <zh/> `:::demo` 容器块：预览 / 代码双栏，纯 CSS 切换（radio + label，无客户端脚本） | <en/> `:::demo` block: preview / code panes toggled in pure CSS (radio + label, no client script) */
+.demo-block {
+  margin: 16px 0;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 8px;
+  overflow: hidden;
+
+  /* 视觉隐藏但仍可聚焦：radio 组保留方向键切换与屏幕阅读器语义 */
+  .demo-tab-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .demo-block-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 12px 8px 16px;
+    background: var(--vp-c-bg-soft);
+    border-bottom: 1px solid var(--vp-c-divider);
+  }
+
+  .demo-block-title {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.6;
+  }
+
+  .demo-tabs {
+    display: flex;
+    gap: 4px;
+    /* 键盘聚焦落在隐藏 radio 上：给整条 tab 一个可见焦点环 */
+    border-radius: 6px;
+  }
+
+  > .demo-tab-input:focus-visible ~ .demo-block-header .demo-tabs {
+    outline: 2px solid var(--vp-c-brand-1);
+    outline-offset: 2px;
+  }
+
+  .demo-tab {
+    padding: 2px 10px;
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--vp-c-text-2);
+    border-radius: 6px;
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.2s, background-color 0.2s;
+
+    &:hover {
+      color: var(--vp-c-text-1);
+    }
+  }
+
+  /* 两个 radio 是 .demo-block 的前两个 input 子元素，用 nth-of-type 区分「演示 / 代码」，无需 id */
+> .demo-tab-input:nth-of-type(1):checked ~ .demo-block-header .demo-tab:nth-of-type(1),
+> .demo-tab-input:nth-of-type(2):checked ~ .demo-block-header .demo-tab:nth-of-type(2) {
+    color: var(--vp-c-brand-1);
+    background: var(--vp-c-default-soft);
+  }
+
+  .demo-block-preview,
+  .demo-block-code {
+    display: none;
+  }
+
+> .demo-tab-input:nth-of-type(1):checked ~ .demo-block-preview,
+> .demo-tab-input:nth-of-type(2):checked ~ .demo-block-code {
+    display: block;
+  }
+
+  .demo-block-preview {
+    padding: 16px;
+    overflow-x: auto;
+  }
+
+  /* ClientOnly 占位：给未挂载的预览一个最小高度，避免挂载瞬间整页跳动 */
+  .demo-block-placeholder {
+    min-height: 120px;
+  }
+
+  /* 代码面板复用 VitePress 代码块样式，但取消其负边距出血与圆角（外框由 .demo-block 提供） */
+  .demo-block-code :is(div[class*='language-']) {
+    margin: 0;
+    border-radius: 0;
+  }
+}

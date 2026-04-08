@@ -1,0 +1,29 @@
+// 树形数据：virtual 模式下模拟 ElTable 原生树形结构
+// Tree data: simulate ElTable native tree structure in virtual mode
+// 展开图标复用 el-table__expand-icon 类名，与 default 模式保持视觉一致
+// The expand icon reuses the el-table__expand-icon class to stay visually consistent with default mode
+@use 'ep-classes' as ep;
+
+// 缩进元素同时挂载 el-table__indent（EP 原生类，保持与 default 模式一致）
+// 和 adv-table-tree-indent（提供 virtual 模式所需的 display/flex-shrink 样式）
+// The indent element carries both el-table__indent (EP native class, consistent with default mode)
+// and adv-table-tree-indent (provides display/flex-shrink styles needed in virtual mode)
+.adv-table-tree-indent {
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+// 无子节点的占位，保持与有子节点行的缩进对齐
+// Placeholder for leaf nodes, kept aligned with nodes that have children
+.#{ep.$ep-table-expand-icon-placeholder} {
+  visibility: hidden;
+}
+
+.adv-table-tree-loading-svg {
+  animation: adv-table-tree-spin 0.8s linear infinite;
+}
+
+@keyframes adv-table-tree-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

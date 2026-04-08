@@ -1,0 +1,89 @@
+{
+  "name": "@advanced-elements/elements",
+  "type": "module",
+  "version": "2.1.1",
+  "description": "All components from advanced-elements, unified in one package",
+  "author": "ChuHingYee",
+  "license": "MIT",
+  "sideEffects": [
+    "*.scss",
+    "*.css"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    },
+    "./style": {
+      "import": "@advanced-elements/table/style",
+      "require": "@advanced-elements/table/style/index.css"
+    },
+    "./style/table": {
+      "import": "@advanced-elements/table/style",
+      "require": "@advanced-elements/table/style/index.css"
+    },
+    "./style/index.scss": {
+      "import": "@advanced-elements/table/style/index.scss"
+    },
+    "./style/index.css": {
+      "import": "@advanced-elements/table/style/index.css"
+    }
+  },
+  "main": "dist/index.cjs",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "clean": "rimraf ./dist",
+    "dev": "rolldown -c -w",
+    "build": "rimraf ./dist && rolldown -c && vue-tsc -p tsconfig.dts.json",
+    "prepack": "rimraf --glob \"./dist/**/*.map\"",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "vue-tsc --noEmit -p tsconfig.json",
+    "coverage": "vitest run --coverage",
+    "size": "size-limit"
+  },
+  "peerDependencies": {
+    "vue": "^3.5.28",
+    "vue-router": "^4.0.0 || ^5.0.0",
+    "xlsx": "^0.18.5 || >=0.19.3 <1"
+  },
+  "peerDependenciesMeta": {
+    "vue-router": {
+      "optional": true
+    },
+    "xlsx": {
+      "optional": true
+    }
+  },
+  "dependencies": {
+    "@advanced-elements/config-provider": "workspace:*",
+    "@advanced-elements/table": "workspace:*"
+  },
+  "devDependencies": {
+    "@advanced-elements/rolldown-config": "workspace:*",
+    "@size-limit/file": "catalog:",
+    "@vue/test-utils": "catalog:",
+    "rimraf": "catalog:",
+    "size-limit": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:",
+    "vue-tsc": "catalog:"
+  },
+  "size-limit": [
+    {
+      "path": "dist/index.mjs",
+      "limit": "5 KB",
+      "gzip": true
+    },
+    {
+      "path": "dist/index.cjs",
+      "limit": "5 KB",
+      "gzip": true
+    }
+  ]
+}

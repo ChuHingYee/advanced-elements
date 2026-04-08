@@ -1,0 +1,158 @@
+@use 'element-plus/theme-chalk/src/mixins/config.scss' as *;
+@use 'ep-classes' as ep;
+// <zh/> 构建期命名空间单点：EP 的 $namespace 被本包 $ep-namespace 覆盖，本文件内插值均跟随（默认 el，覆盖见 ep-classes 文件头） | <en/> Build-time namespace single-source: EP $namespace is overridden by our $ep-namespace; all interpolations in this file follow (default el, see the ep-classes header for overrides)
+$namespace: ep.$ep-namespace;
+@use 'element-plus/theme-chalk/src/mixins/function.scss' as *;
+@use 'mixins' as *;
+
+.adv-table {
+
+  // Note: EP el-table 的 .el-table__row 由框架内部渲染，无法添加自定义类名，必须使用后代组合器
+  // Note: EP el-table's .el-table__row is rendered internally and cannot receive custom classes, so descendant combinators are required
+  .adv-table__main.#{$namespace}-table .#{$namespace}-table__row {
+    position: relative;
+  }
+
+  .adv-table__hover-cell {
+    position: relative;
+    overflow: visible !important;
+  }
+
+  // Note: EP el-table 的 .cell 由框架内部渲染，无法添加自定义类名，必须使用后代组合器
+  // Note: EP el-table's .cell is rendered internally and cannot receive custom classes, so descendant combinators are required
+  .adv-table__main.#{$namespace}-table .adv-table__hover-cell .cell {
+    overflow: visible !important;
+  }
+}
+
+// 行内 hover 模式：每行渲染 RowActionBar，可见性由单源 `isEffectivelyVisible`
+// Inline hover mode: a RowActionBar is rendered per row, visibility governed by the single-source `isEffectivelyVisible`
+// （行 key == hoverRowKey，经 `--visible` / `data-hover-visible`），不再依赖 CSS :hover / EP 行类。
+// (row key == hoverRowKey, via `--visible` / `data-hover-visible`), no longer CSS :hover / EP row classes.
+// 注意：类名 adv-table__hover-cell 由 normal-column.tsx / normal-v2-column.tsx 在
+// showInlineHover 时应用到最后一列的 ElTableColumn / V2 column class 上。
+// 历史教训：`--visible` 的 opacity:1 曾使旧隐藏规则失效（三方共治无单一真相），现 `--visible`
+// 与属性同源，不再互斥。
+// Note: class adv-table__hover-cell is applied by normal-column.tsx / normal-v2-column.tsx
+// to the last column's ElTableColumn / V2 column class when showInlineHover is true.
+// History: `--visible`'s opacity:1 once defeated the old hiding rules (three-way rule with no single
+// truth); `--visible` now shares the source with the attribute, no longer in conflict.
+.adv-table__hover-cell .adv-table-row-action-bar {
+  // 默认隐藏：非悬停行（无属性）保持不可见；悬停行由下方单属性规则显示
+  // Hidden by default: non-hovered rows (no attribute) stay invisible; hovered rows shown by the single-attribute rule below
+  opacity: 0;
+  pointer-events: none;
+}
+
+// 单源显示规则——唯一能将 bar 置为可见的选择器（0-2-0，正常特异性，无 !important）。
+// 注意：EP el-table 的行由框架内部渲染，无法添加自定义类名——但本规则不再需要行类，
+// 触发条件（属性）由 JS 按 hoverRowKey 写入，与命名空间/EP 改名无关。
+// Single-source show rule — the only selector that can reveal the bar (0-2-0, normal specificity, no !important).
+// Note: EP el-table rows are framework-rendered and cannot take custom classes — but this rule no longer
+// needs row classes; the trigger (attribute) is written by JS from hoverRowKey, independent of namespace/EP renames.
+.adv-table-row-action-bar[data-hover-visible="true"] {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.adv-table-row-action-bar {
+  @include adv-table-color-vars;
+  --adv-table-color-primary-light-9: #{getCssVarWithDefault(('color', 'primary-light-9'), rgb(236,245,255))};
+  --adv-table-border-color-lighter: #{getCssVarWithDefault(('border', 'color-lighter'), #ebeef5)};
+  --adv-table-color-primary-light-7: #{getCssVarWithDefault(('color', 'primary-light-7'), rgb(198,226,255))};
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  box-sizing: border-box;
+  padding: 0 8px;
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  inline-size: auto;
+  box-shadow: none;
+  border: none;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--adv-table-transition-duration-fast) ease;
+  white-space: nowrap;
+  z-index: 3001;
+  background-color: var(--adv-table-fill-color-light);
+  background: linear-gradient(to right, var(--adv-table-fill-color-light), var(--adv-table-border-color-lighter, #dddde1));
+
+  &--visible {
+    opacity: 1;
+  }
+
+  &--inline {
+    pointer-events: none;
+  }
+
+  &--inline,
+  &--visible {
+    pointer-events: auto;
+  }
+
+  &--teleport {
+    position: fixed;
+    z-index: 3001;
+  }
+
+  &__btns {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    inline-size: fit-content;
+    max-inline-size: 100%;
+    min-inline-size: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: thin;
+    padding: 0 8px;
+    pointer-events: auto;
+    transition:
+      max-inline-size var(--adv-table-transition-duration-fast) ease,
+      opacity var(--adv-table-transition-duration-fast) ease,
+      padding var(--adv-table-transition-duration-fast) ease;
+    max-inline-size: 100%;
+    opacity: 1;
+    height: 100%;
+  }
+
+  &__toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 32px;
+    height: 100%;
+    flex: 0 0 auto;
+    pointer-events: auto;
+    border-radius: var(--adv-table-border-radius-base);
+    color: var(--adv-table-text-color-secondary) !important;
+    background: transparent;
+    border: 0;
+    transition:
+      color var(--adv-table-transition-duration-fast) ease;
+    cursor: pointer;
+
+    &:hover {
+      color: var(--adv-table-color-primary) !important;
+    }
+
+    .#{$namespace}-icon {
+      transition: transform var(--adv-table-transition-duration-fast) ease;
+    }
+  }
+
+  &--collapsed &__btns {
+    max-inline-size: 0;
+    padding-inline: 0;
+    opacity: 0;
+    overflow: hidden;
+  }
+
+  &--collapsed &__toggle .#{$namespace}-icon {
+    transform: rotate(180deg);
+  }
+}

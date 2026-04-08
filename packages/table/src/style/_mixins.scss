@@ -1,0 +1,65 @@
+@use 'element-plus/theme-chalk/src/mixins/config.scss' as *;
+@use 'element-plus/theme-chalk/src/mixins/function.scss' as *;
+@use 'ep-classes' as ep;
+// <zh/> 构建期命名空间单点（见各样式文件头同名注释） | <en/> Build-time namespace single-source (see the same comment in style file headers)
+$namespace: ep.$ep-namespace;
+
+@mixin adv-table-header-cell-base {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  width: 100%;
+  height: 100%;
+  min-height: var(--adv-table-header-cell-height, 50px);
+  box-sizing: border-box;
+  padding: var(--adv-table-header-cell-padding, 8px 12px);
+  // 对齐 default 模式：ElTable 原生 th 字重为 600，ElTableV2 原生 header-cell 为 bold(700)
+  // Align with default mode: ElTable native th weight is 600, ElTableV2 native header-cell is bold(700)
+  font-weight: 600;
+}
+
+@mixin adv-table-color-vars {
+  --adv-table-color-primary: #{getCssVarWithDefault(('color', 'primary'), #409eff)};
+  --adv-table-text-color-secondary: #{getCssVarWithDefault(('text-color', 'secondary'), #909399)};
+  --adv-table-transition-duration-fast: #{getCssVarWithDefault(('transition', 'duration-fast'), 0.2s)};
+  --adv-table-border-color: #{getCssVarWithDefault(('border', 'color'), #dcdfe6)};
+  --adv-table-border-radius-base: #{getCssVarWithDefault(('border-radius', 'base'), 4px)};
+  --adv-table-fill-color-light: #{getCssVarWithDefault(('fill-color', 'light'), #f5f7fa)};
+}
+
+/**
+ * <zh/> virtual 模式「合成行跨列覆盖」公共骨架（分组头行 / 明细行共用）
+ * <zh/> ElTableV2 行是 flex 布局（无 colspan），故用绝对定位把锚点单元格铺满整行：
+ * <zh/> 行本身建立定位参照系 → 非锚点列隐藏 → 锚点列保持可见并绝对定位铺满。
+ * <zh/> `:has()` 不支持时（@supports 回退）退化为「所有列可见」，仅失去跨列覆盖效果。
+ *
+ * <en/> Shared skeleton for virtual-mode synthetic-row span coverage (group header / detail rows).
+ * <en/> ElTableV2 rows are flex layouts (no colspan), so the anchor cell is absolutely positioned
+ * <en/> across the row: the row establishes the containing block → non-anchor cells hidden →
+ * <en/> the anchor cell stays visible and fills the row. Without `:has()` support (the
+ * <en/> `@supports` fallback) every cell stays visible, losing only the span coverage.
+ *
+ * @param $anchor <zh/> 锚点单元格选择器（该行内唯一承载跨列内容的元素） | <en/> anchor cell selector (the row's single span-content element)
+ */
+@mixin adv-table-v2-span-row($anchor) {
+  position: relative;
+
+  .#{ep.$ep-table-v2-row-cell} {
+    visibility: hidden;
+  }
+
+  .#{ep.$ep-table-v2-row-cell}:has(#{$anchor}) {
+    visibility: visible;
+  }
+
+  @supports not selector(:has(*)) {
+    .#{ep.$ep-table-v2-row-cell} {
+      visibility: visible;
+    }
+  }
+
+  #{$anchor} {
+    position: absolute;
+    inset: 0;
+  }
+}

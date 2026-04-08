@@ -1,0 +1,72 @@
+{
+  "name": "@advanced-elements/monorepo",
+  "private": true,
+  "packageManager": "pnpm@12.11.2",
+  "description": "advanced-elements's monorepo",
+  "author": "ChuHingYee",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22",
+    "pnpm": ">=9"
+  },
+  "scripts": {
+    "preinstall": "npx only-allow pnpm",
+    "prepare": "husky",
+    "deps:fix": "node scripts/fix-deps.mjs",
+    "verify:commit": "esno scripts/verify-commit.ts",
+    "play": "pnpm -C play dev",
+    "dev:all": "turbo run dev",
+    "lint": "eslint . --fix",
+    "format": "eslint . --fix",
+    "lint:check": "eslint . --max-warnings 0",
+    "lint:table": "eslint packages/table --max-warnings 0",
+    "typecheck": "turbo run typecheck",
+    "coverage": "turbo run coverage",
+    "test": "turbo run test",
+    "clean": "turbo run clean",
+    "build:all": "turbo run build --filter=./packages/*",
+    "release": "esno scripts/release.ts",
+    "release:verify": "node scripts/release-verify.mjs",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:release": "esno scripts/release-docs.ts"
+  },
+  "dependencies": {
+    "@element-plus/icons-vue": "catalog:",
+    "element-plus": "catalog:"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "catalog:",
+    "@changesets/changelog-git": "catalog:",
+    "@changesets/changelog-github": "catalog:",
+    "@changesets/cli": "catalog:",
+    "@types/conventional-commits-parser": "catalog:",
+    "@types/node": "catalog:node22",
+    "@vitejs/plugin-vue": "catalog:",
+    "@vitejs/plugin-vue-jsx": "catalog:",
+    "@vue/test-utils": "catalog:",
+    "chalk": "catalog:",
+    "eslint": "catalog:",
+    "esno": "catalog:",
+    "happy-dom": "catalog:",
+    "husky": "catalog:",
+    "jsdom": "catalog:",
+    "lint-staged": "catalog:",
+    "resize-observer-polyfill": "catalog:",
+    "sass": "catalog:",
+    "turbo": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vitepress": "catalog:",
+    "vitest": "catalog:"
+  },
+  "overrides": {},
+  "lint-staged": {
+    "{packages,docs,scripts,play,dev-packages}/**/*.{js,mjs,cjs,ts,mts,cts,tsx,vue}": [
+      "eslint --fix"
+    ],
+    "*.{js,mjs,cjs,ts,mts,cts}": [
+      "eslint --fix"
+    ]
+  }
+}

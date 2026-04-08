@@ -1,0 +1,34 @@
+// 跨列骨架（定位参照系 + 非锚点列隐藏 + :has() 回退）复用 mixin，仅保留本行锚点的额外样式
+// The span skeleton (containing block + non-anchor hiding + :has() fallback) comes from the mixin;
+// only this row's anchor-specific styles stay here
+@use 'mixins' as *;
+@use 'ep-classes' as ep;
+@use 'element-plus/theme-chalk/src/mixins/function.scss' as *;
+
+// default 模式：明细行
+// Default mode: detail row
+.adv-table__detail-row {
+  td {
+    background-color: #{getCssVar('fill-color-lighter')} !important;
+  }
+}
+
+.adv-table__detail-cell {
+  padding: 12px 16px;
+}
+
+// virtual 模式：明细行跨列覆盖
+// Virtual mode: detail row spans all columns
+.adv-table__detail-row.#{ep.$ep-table-v2-row} {
+  @include adv-table-v2-span-row('.adv-table__detail-cell');
+
+  .adv-table__detail-cell {
+    padding: 12px 16px;
+    overflow: auto;
+    background-color: #{getCssVar('fill-color-lighter')} !important;
+  }
+}
+
+.adv-table__detail-empty-cell {
+  display: none;
+}
