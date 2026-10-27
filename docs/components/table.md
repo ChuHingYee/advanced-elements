@@ -873,7 +873,7 @@ interface ColumnEditorRules {
 | `cellEditingCancelled` | `(params: { reason: 'row-deleted' \| 'data-changed' }, tableId)` | 编辑会话被取消（排序/筛选/分页/外部替换致编辑行不可定位时派发） |
 | `fullRowEdit` | `(params: { row, rowIndex, changes[], reason })` | 整行编辑提交 |
 | `crossFieldValidateError` | `(params: { rowIndex, errors: string[] })` | 跨字段校验错误 |
-| `modelUpdated` | - | 模型更新完成 |
+| `modelUpdated` | - | 模型更新完成（`finalDisplayData` 引用变化时发射；筛选/排序/列宽重算后渲染结果内容未变时不发射——管线逐元素引用稳定） |
 
 ### 其他事件
 
@@ -1789,6 +1789,7 @@ registerFilterType({
 
 - **默认渲染模式是 `virtual`**（走 ElTableV2），经典 ElTable 行为用 `mode="default"`。
 - **全选口径跟模式走**：`default` = 当前页，`virtual` = 全部过滤行；与模式无关的当页全选用 `selectAllOnCurrentPage`。多选/树/展开务必设 `rowConfig.rowKey`，否则数据刷新后选中与展开会静默失效。服务端分页下 virtual 的"全部过滤行"仍只是当前页；跨页选中需要 `keepSelectionAcrossPages` + 受控 `selectedRowKeys`，`getSelectedRows()` / `selectionChange.rows` 只有当页行，全量行用 `meta.keys` 解析。
+- **行选中语义仅经复选框暴露**：勾选状态由行复选框的 `checked` 暴露，表格不写行级 `aria-selected`（default/virtual 一致）；单元格 `aria-selected` 仅在范围选择高亮的 `gridcell` 上写入。读屏需行级选中上下文时以复选框为准。
 - **树形 + 服务端分页不支持**（`TABLE_TREE_REMOTE_PAGINATION_UNSUPPORTED`）：树需要全量数据，用 `pagination.mode="client"` 或 `pagination.enabled=false`。树与行分组互斥（同时开则分组被忽略）。
 - **服务端数据源 + `autoParams` 关闭 = 页内排序/筛选**：列排序只排当前页（不重拉、不重置页码）；列筛选 / `quickFilter` / `externalFilter` 只过滤当前页（dev 会告警）。服务端行为需声明 `{ type: 'server' }` / `'custom'` 可排序列并打开 `request.autoParams`。
 - **编辑 + 远程数据源**：排序/筛选/翻页会整体替换 `data` 并丢弃未提交的编辑，先调 `saveCells()` / `discard()`。

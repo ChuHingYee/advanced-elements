@@ -10,7 +10,6 @@
 -->
 <script setup lang="ts" generic="T">
 import type { TableInstance } from 'element-plus'
-import type { UseSelectionStateReturn } from '../../composables/selection/use-selection-state'
 import type { ProcessedColumn } from '../../types/column'
 import type { TableHoverTeleportOverlayApi } from '../../types/config-api'
 import type { DefaultRendererProps } from '../../types/renderer'
@@ -33,15 +32,13 @@ import {
   advTableRowExpandKey,
   advTableRowGroupKey,
   advTableRowPinKey,
-  advTableSelectionKey,
 } from '../../types/injection-keys'
 import { findColumnByKey } from '../../utils/column-tree'
-import { devWarn } from '../../utils/dev-warn'
 import { createRowEventHandlers } from '../../utils/event-handlers'
 import { clampRowToContainer, getBodyContainerRect } from '../../utils/hover-locator'
 import { rowKeyAttrSelector } from '../../utils/row-key-attr'
 import { getColumnKey, getHoverOptionZIndex, resolveColumnProp } from '../../utils/shared'
-import { ADV_TABLE_COLUMN_KEY_ATTR, ADV_TABLE_ROW_KEY_ATTR } from '../../utils/table-drag'
+import { ADV_TABLE_COLUMN_KEY_ATTR } from '../../utils/table-drag'
 import { isGrandTotalRow, isGroupTotalRow } from '../../utils/total-rows'
 
 import HoverTeleportOverlay from '../cell-renderers/hover-teleport-overlay.vue'
@@ -109,39 +106,6 @@ function getRowKey(row: any): string {
 }
 
 // <zh/> 按域注入（上帝上下文已删除）| <en/> per-domain injection (god context removed)
-const selectionCtx = inject(advTableSelectionKey, undefined) as UseSelectionStateReturn | undefined
-// <zh/> aria-selected 与渲染同步：空 DOM（测试环境/未挂载）下 querySelectorAll 返回空集合，forEach 空转无害；
-// <zh/> 大数据时跳过（default 模式阈值 1000，外层已警告）。失败走 devWarn，不静默吞错。
-// <en/> Sync aria-selected with render: empty DOM (test env/unmounted) yields an empty NodeList, a no-op forEach;
-// <en/> skipped for large datasets (default mode threshold 1000, warned externally). Failures go through devWarn.
-watch(() => [selectionCtx?.selectedKeys?.value, tableRef.value?.$el, props.data] as const, ([selectedKeys, el]) => {
-  const selCtx: UseSelectionStateReturn | undefined = selectionCtx
-  if (!el || !selCtx?.isSelectedByKey)
-    return
-  try {
-    const rows = (el as HTMLElement).querySelectorAll<HTMLElement>(props.dom.getRowSelector())
-    // <zh/> 大数据保护：DOM 行数 >500 时跳过全量遍历（virtual 模式 DOM 仅窗口 ~20 行，此分支仅影响 default 大表误用）
-    // <en/> Large-data guard: skip full traversal when DOM rows >500 (virtual DOM is window ~20, this only affects misused large default tables)
-    if (rows.length > 500)
-      return
-    const selectedSet = selectedKeys as Set<string> | undefined
-    rows.forEach((tr) => {
-      const key = tr.getAttribute(ADV_TABLE_ROW_KEY_ATTR) ?? ''
-      if (!key)
-        return
-      const selected = selectedSet ? selectedSet.has(key) : selCtx.isSelectedByKey(key)
-      if (selected)
-        tr.setAttribute('aria-selected', 'true')
-      else tr.removeAttribute('aria-selected')
-      tr.setAttribute('role', 'row')
-    })
-  }
-  catch (error) {
-    // <zh/> aria 增强失败不可静默吞错——dev 去重告警（高频 watcher，避免刷屏），生产构建自动剔除
-    // <en/> Never swallow aria-sync failures silently — deduped dev warning (high-frequency watcher), stripped in production
-    devWarn('TableRenderer: failed to sync aria-selected attributes.', error)
-  }
-}, { flush: 'post' })
 const tableContext = inject(advTableKey, undefined)
 const rowKeyMeta = tableContext?.rowKeyMeta
 

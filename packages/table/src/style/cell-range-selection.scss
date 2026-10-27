@@ -4,8 +4,12 @@
   --adv-table-cell-range-bg: rgba(#{getCssVarWithDefault('color-primary-rgb', (64, 158, 255))}, 0.08);
   --adv-table-cell-range-border-color: #{getCssVarWithDefault('color-primary', #409eff)};
 
-  &--range-selecting {
-    /** 拖选期间禁止文本选中，避免干扰 | Disable text selection during drag to avoid interference */
+  /* 拖选期间禁止文本选中；属性选择器而非类名——属性由 use-interaction-orchestrator 命令式写入，
+     Vue 根 patch 不会删除，而类名会被 patchClass 整体覆盖
+     Disable text selection during drag; attribute selector over a class — the attribute is applied
+     imperatively by use-interaction-orchestrator and survives root patching, whereas a handwritten
+     class is wiped by patchClass overwriting className */
+  &[data-adv-table-range-selecting] {
     user-select: none;
     -webkit-user-select: none;
   }

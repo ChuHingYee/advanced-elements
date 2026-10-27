@@ -14,9 +14,15 @@ export function refStable<T extends unknown[]>(prev: T | undefined, next: T): T 
 }
 
 /**
- * <zh/> 逐元素引用比较后返回 prev，否则返回 next——用于管线中“filter/flatten”型 computed 的 prev 稳定性优化 | <en/> Return prev when all element references match, otherwise next — pipeline 'filter/flatten' computed prev stability optimization
+ * <zh/> 逐元素引用比较后返回 prev，否则返回 next——用于管线中“filter/flatten”型 computed 的 prev 稳定性优化。
+ * <zh/> 相同引用走 O(1) 快路径：透传型上游（refStable 链）恒命中，避免每阶段多付一次 O(n) 扫描。
+ * <en/> Return prev when all element references match, otherwise next — pipeline 'filter/flatten'
+ * <en/> computed prev stability optimization. Identical references take the O(1) fast path: pass-through
+ * <en/> upstreams (refStable chains) always hit it, sparing every stage an O(n) scan.
  */
 export function shallowArrayStable<T extends unknown[]>(prev: T | undefined, next: T): T {
+  if (prev === next)
+    return prev
   if (prev && prev.length === next.length) {
     let allSame = true
     for (let i = 0; i < next.length; i++) {

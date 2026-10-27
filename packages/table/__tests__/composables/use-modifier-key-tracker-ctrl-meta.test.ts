@@ -106,10 +106,35 @@ describe('useModifierKeyTracker phase2 — enabled=false', () => {
   })
 })
 
-describe('useModifierKeyTracker phase2 — noSelectClass', () => {
-  it('returns correct noSelectClass value', () => {
-    const { noSelectClass } = useModifierKeyTracker()
-    expect(noSelectClass).toBe('adv-table--no-select')
+describe('useModifierKeyTracker — imperative no-select attribute', () => {
+  it('toggles data-adv-table-no-select on the root element with Shift keydown/keyup', async () => {
+    const { tableRootRef } = useModifierKeyTracker()
+    const el = document.createElement('div')
+    tableRootRef.value = el
+    await nextTick()
+
+    el.dispatchEvent(new KeyboardEvent('keydown', { key: 'Shift' }))
+    await nextTick()
+    expect(el.hasAttribute('data-adv-table-no-select')).toBe(true)
+
+    el.dispatchEvent(new KeyboardEvent('keyup', { key: 'Shift' }))
+    await nextTick()
+    expect(el.hasAttribute('data-adv-table-no-select')).toBe(false)
+  })
+
+  it('removes the attribute on window blur', async () => {
+    const { tableRootRef } = useModifierKeyTracker()
+    const el = document.createElement('div')
+    tableRootRef.value = el
+    await nextTick()
+
+    el.dispatchEvent(new KeyboardEvent('keydown', { key: 'Shift' }))
+    await nextTick()
+    expect(el.hasAttribute('data-adv-table-no-select')).toBe(true)
+
+    window.dispatchEvent(new Event('blur'))
+    await nextTick()
+    expect(el.hasAttribute('data-adv-table-no-select')).toBe(false)
   })
 })
 

@@ -472,8 +472,12 @@ $namespace: ep.$ep-namespace;
     background-color: #{getCssVarWithDefault('fill-color-light', #f5f7fa)};
   }
 
-  /* Shift 按下时阻止文字选择（Shift+Click 行范围选择） | Prevent text selection while Shift is held (Shift+Click row range selection) */
-  &--no-select {
+  /* Shift 按下时阻止文字选择（Shift+Click 行范围选择）；用属性选择器而非类名——属性由
+     use-modifier-key-tracker 命令式写入，Vue 根 patch 不会删除，而类名会被 patchClass 整体覆盖
+     Disable text selection while Shift is held (Shift+Click row range selection); attribute selector
+     over a class — the attribute is applied imperatively by use-modifier-key-tracker and survives
+     root patching, whereas a handwritten class is wiped by patchClass overwriting className */
+  &[data-adv-table-no-select] {
     user-select: none;
   }
 }

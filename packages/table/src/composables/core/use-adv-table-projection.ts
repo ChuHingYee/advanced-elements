@@ -244,7 +244,6 @@ export function buildAdvTableProjection<T>(deps: BuildAdvTableProjectionDeps<T>)
     interaction: {
       tableRootRef: interaction.tableRootRef,
       shiftKeyPressed: interaction.shiftKeyPressed,
-      noSelectClass: interaction.noSelectClass,
       isRangeSelecting: interaction.isRangeSelecting,
       dragLocator: interaction.dragLocator,
       rendererHasError: interaction.rendererHasError,
