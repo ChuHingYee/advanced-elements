@@ -138,7 +138,7 @@ export function useInteractionOrchestrator<T>(options: UseInteractionOrchestrato
 
   const tableEmit = createTableEmitter(emit, tableId)
 
-  const { tableRootRef: _tableRootRef, shiftKeyPressed, noSelectClass } = useModifierKeyTracker()
+  const { tableRootRef: _tableRootRef, shiftKeyPressed } = useModifierKeyTracker()
 
   const { hasError: rendererHasError, errorInfo: rendererErrorInfo, reset: resetRendererError } = useRenderErrorBoundary({
     onError: e => tableEmit('error', e),
@@ -354,6 +354,17 @@ export function useInteractionOrchestrator<T>(options: UseInteractionOrchestrato
     },
   })
 
+  // <zh/> 范围选择态命令式同步为根元素属性，理由同 use-modifier-key-tracker 的 no-select 属性：
+  // <zh/> 根模板 :class 读取 isRangeSelecting 会让每次拖拽起点/终点都重渲染整表体。
+  // <zh/> watch 覆盖全部写点（含 resetInteractionState 复位），回调不建立根渲染依赖。
+  // <en/> Imperatively sync the range-selecting state as a root attribute, same rationale as the
+  // <en/> tracker's no-select attribute: a root-template :class read of isRangeSelecting re-renders
+  // <en/> the whole tbody on every drag start/end. The watch covers every write point (including the
+  // <en/> resetInteractionState reset) and establishes no root render dependency.
+  watch(isRangeSelecting, (selecting) => {
+    _tableRootRef.value?.toggleAttribute('data-adv-table-range-selecting', selecting)
+  })
+
   // <zh/> 方向键网格导航——委托容器捕获监听，滚动跟随经 activeRenderer 的 scrollToRow/Column。
   // <zh/> virtual 主网格查询域收窄，避免钉住条带/汇总区的同属性单元格被误命中。
   // <en/> Grid arrow-key navigation — delegated capture listener on the root; scroll-follow goes
@@ -437,7 +448,6 @@ export function useInteractionOrchestrator<T>(options: UseInteractionOrchestrato
     isRowDragging,
     tableRootRef: _tableRootRef,
     shiftKeyPressed,
-    noSelectClass,
     rendererHasError,
     rendererErrorInfo,
     rendererErrorText,

@@ -139,11 +139,19 @@ export function usePipelineFilterSort<T = any>(deps: PipelineFilterSortDeps<T>) 
   })
 
   // <zh/> 各阶段输出（按 predecessor 链取值，顺序变化时自动重组；默认顺序下与历史 afterX 逐一等价）
+  // <zh/> 筛选/排序阶段逐元素稳定：rows.filter 命中集合内容不变时复用 prev 引用，只比引用的 refStable
+  // <zh/> 会让「命中集合一模一样」的新数组下发到 finalDisplayData，列宽提交等列对象抖动即整 tbody
+  // <zh/> 重渲染（实测 100 行 ≈220ms/次）；与 externalFilter/use-table-data-pipeline 的既有范式一致。
   // <en/> Per-stage outputs chained by predecessor; identical to the historical afterX chain under the default order
-  const columnFilterOutput = computed<T[]>(prev => refStable(prev, filterFilteredData.value.isFiltered
+  // <en/> Filter/sort stages are element-wise stable: reuse prev when the filter hit-set content is
+  // <en/> unchanged. The reference-only refStable lets a content-identical rows.filter array reach
+  // <en/> finalDisplayData, re-rendering the whole tbody on column-object churn like width commits
+  // <en/> (measured ≈220ms per commit at 100 rows); aligns with the established externalFilter /
+  // <en/> use-table-data-pipeline pattern.
+  const columnFilterOutput = computed<T[]>(prev => shallowArrayStable(prev, filterFilteredData.value.isFiltered
     ? filterFilteredData.value.data
     : predecessorData('columnFilter')))
-  const quickFilterOutput = computed<T[]>(prev => refStable(prev, quickFilterFilteredData.value.isFiltered
+  const quickFilterOutput = computed<T[]>(prev => shallowArrayStable(prev, quickFilterFilteredData.value.isFiltered
     ? quickFilterFilteredData.value.data
     : predecessorData('quickFilter')))
   const externalFilterOutput = computed<T[]>((prev) => {
@@ -153,7 +161,7 @@ export function usePipelineFilterSort<T = any>(deps: PipelineFilterSortDeps<T>) 
     const filtered = predecessorData('externalFilter').filter((row: T) => externalFilterValue.doesExternalFilterPass(row))
     return shallowArrayStable(prev, filtered)
   })
-  const sortOutput = computed<T[]>(prev => refStable(prev, sortSortedData.value.isSorted
+  const sortOutput = computed<T[]>(prev => shallowArrayStable(prev, sortSortedData.value.isSorted
     ? sortSortedData.value.data
     : predecessorData('sort')))
 

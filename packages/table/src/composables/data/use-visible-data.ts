@@ -52,15 +52,15 @@ export function useVisibleData<T = any>(options: UseVisibleDataOptions<T>): UseV
     // <zh/> 不做 prev 启发式短路：禁止仅比较 prev[0] === data[start]，
     // <zh/> 数据引用变化（如 applyTransaction 局部更新生成新数组）但页首行对象未变时
     // <zh/> 返回陈旧切片——第 2+ 页中间行更新不渲染，直到翻页。
-    // <zh/> 上游 finalDisplayData 已有逐层 refStable 保证同内容复用引用，
+    // <zh/> 上游 finalDisplayData 已有逐层 refStable/shallowArrayStable 保证同内容复用引用，
     // <zh/> 走到这里即数据真实变化，直接重切片（O(pageSize)，可忽略）。
     // <en/> No prev heuristic short-circuit: never compare only prev[0] === data[start];
     // <en/> a data reference change (e.g. a new array from an applyTransaction partial update)
     // <en/> with an unchanged first page row returns a stale slice — mid-page row updates on
     // <en/> page 2+ never re-render until page flip.
     // <en/> Upstream finalDisplayData layers already reuse references when content is unchanged
-    // <en/> (refStable), so reaching here means the data really changed; re-slice directly
-    // <en/> (O(pageSize), negligible).
+    // <en/> (refStable / shallowArrayStable), so reaching here means the data really changed;
+    // <en/> re-slice directly (O(pageSize), negligible).
     return data.slice(start, end)
   })
 

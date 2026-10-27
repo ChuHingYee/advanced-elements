@@ -127,11 +127,20 @@ const ColumnSettingSidePanel = defineAsyncComponent({
   onError: createChunkLoadOnError('column-setting-side-panel'),
   delay: ASYNC_PANEL_DELAY_MS,
 })
-const ContextMenu = defineAsyncComponent({
-  loader: () => import('./components/context-menu/context-menu.vue'),
+/**
+ * <zh/> 右键菜单宿主——异步加载的薄壳渲染组件，菜单态（menuVisible/menuStyle/currentItems/…）
+ * <zh/> 只在宿主自身渲染效应内消费，根效应仅持有 menu/interaction 对象引用；
+ * <zh/> context-menu.vue 与宿主同 chunk，保持低频面板不占首屏初始包。
+ * <en/> Context-menu host — an async thin render component; menu state (menuVisible/menuStyle/
+ * <en/> currentItems/…) is consumed only inside the host's own render effect, while the root effect
+ * <en/> holds the menu/interaction object references only. context-menu.vue shares the host's chunk,
+ * <en/> keeping the low-frequency panel out of the initial bundle.
+ */
+const ContextMenuHost = defineAsyncComponent({
+  loader: () => import('./components/context-menu/context-menu-host.vue'),
   loadingComponent: PanelLoading,
   errorComponent: AsyncChunkLoadError,
-  onError: createChunkLoadOnError('context-menu'),
+  onError: createChunkLoadOnError('context-menu-host'),
   delay: ASYNC_PANEL_DELAY_MS,
 })
 const ColumnFilterForm = defineAsyncComponent({
@@ -325,21 +334,6 @@ function handleCloseFilterPopover(): void {
 }
 
 /**
- * <zh/> 菜单元素引用转发——ContextMenu 根元素经局部 ref 供二次校正 O(1) 度量，避免 document 全局扫
- * <en/> Forward the menu root element for O(1) re-measure in repositioning
- */
-function setContextMenuRef(inst: unknown): void {
-  try {
-    const el = (inst as { $el?: unknown } | null)?.$el ?? inst ?? null
-    menu.setMenuElRef(el)
-  }
-  catch {
-    // <zh/> ref 转发异常不影响菜单主体
-    // <en/> Ref-forward failures must not break the menu
-  }
-}
-
-/**
  * <zh/> 渲染器 props 域组装——在 computed 内读取解包后的域值，响应式追踪不断；
  * <zh/> 组装逻辑本身是纯函数（见 renderer-props-factory），SFC 只接线。加第三种模式时只需在工厂登记。
  * <en/> Renderer props domain assembly — reads unwrapped domain values inside a computed so tracking
@@ -528,11 +522,7 @@ defineExpose({
     ref="tableRootRef"
     v-bind="renderer.rootAttrs"
     class="adv-table"
-    :class="{
-      'adv-table--range-selecting': interaction.isRangeSelecting,
-      'adv-table--layout-bare': config.mergedContainerLayout === 'bare',
-      [interaction.noSelectClass]: interaction.shiftKeyPressed,
-    }"
+    :class="{ 'adv-table--layout-bare': config.mergedContainerLayout === 'bare' }"
     :style="config.sizeCssVars"
   >
     <TableSearch
@@ -793,15 +783,9 @@ defineExpose({
         @reset="handleCloseFilterPopover"
       />
     </ElPopover>
-    <ContextMenu
-      :ref="setContextMenuRef"
-      :visible="menu.menuVisible && interaction.isContainerVisible"
-      :style="menu.menuStyle"
-      :items="menu.currentItems"
-      :params="menu.currentParams"
-      :menu-token="menu.menuToken"
-      @close="menu.closeMenu"
-      @item-click="menu.onMenuItemClick"
+    <ContextMenuHost
+      :menu="menu"
+      :interaction="interaction"
     />
   </div>
 </template>
