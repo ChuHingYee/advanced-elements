@@ -32,7 +32,6 @@ import type {
   TableEditApi,
   TableFilterSortOps,
   TableHoverLayerApi,
-  TableRangeSelectionApi,
   TableSharedFilterPopoverApi,
   TableSharedHeaderTooltipApi,
 } from './config-api'
@@ -102,8 +101,6 @@ export const advTableRowGroupKey: InjectionKey<RowGroupApi> = Symbol('advTableRo
 export const advTableRowExpandKey: InjectionKey<RowExpandApi> = Symbol('advTableRowExpand')
 /** <zh/> R2 域键：行固定 | <en/> R2 domain key: row pin */
 export const advTableRowPinKey: InjectionKey<RowPinApi> = Symbol('advTableRowPin')
-/** <zh/> R2 域键：范围选择 | <en/> R2 domain key: range selection */
-export const advTableRangeSelectionKey: InjectionKey<TableRangeSelectionApi> = Symbol('advTableRangeSelection')
 /** <zh/> R2 域键：筛选面板 | <en/> R2 domain key: filter panel */
 export const advTableFilterPanelKey: InjectionKey<FilterPanelApi> = Symbol('advTableFilterPanel')
 /** <zh/> R2 域键：选择状态（真源类型，消费侧禁止 as any） | <en/> R2 domain key: selection (source-typed, no as any at consumption sites) */

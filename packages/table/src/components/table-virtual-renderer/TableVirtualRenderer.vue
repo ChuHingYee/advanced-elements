@@ -34,9 +34,9 @@ import {
   advTableTreeKey,
 } from '../../types/injection-keys'
 import { AUTO_KEY_NAME } from '../../utils/normalize-row-key'
-import { EMPTY_ROW, getColumnKey, getHoverOptionZIndex } from '../../utils/shared'
+import { getColumnKey, getHoverOptionZIndex } from '../../utils/shared'
 import { getSyntheticRowStableKey, isDetailRow, isSyntheticRow } from '../../utils/synthetic-row'
-import RowActionBar from '../cell-renderers/row-action-bar.vue'
+import HoverTeleportOverlay from '../cell-renderers/hover-teleport-overlay.vue'
 import { filterTeleportHoverColumns } from '../renderer-core/column-build-shared'
 import { pickGridA11yAttrs, vGridA11y } from '../renderer-core/grid-a11y-attrs'
 import { useRendererLocale } from '../renderer-core/render-helpers'
@@ -330,12 +330,16 @@ const resolvedSelectionMode = computed(() =>
 
 //  悬停操作层（use-v2-hover）— teleport 定位 + 子组件 provide
 //  Hover action layer (use-v2-hover) — teleport positioning + child provide
+/**
+ * <zh/> teleport 操作条 zIndex——只随 teleportOverlay 交给 HoverTeleportOverlay，
+ * <zh/> 禁止在本渲染器模板内读取，否则 hover 状态会进入渲染器 render effect。
+ * <en/> z-index of the teleported bar — passed to HoverTeleportOverlay only via `teleportOverlay`;
+ * <en/> never read in this renderer's template, or hover state leaks into the renderer's render effect.
+ */
+const hoverOptionZIndex = computed(() => getHoverOptionZIndex(props.columns))
 const {
-  teleportRowRect,
-  showTeleportHover,
   shouldUseTeleport,
   wrappedHandleScroll,
-  handleForceHide,
   hoverLayerApi,
 } = useV2Hover<T>({
   tableV2Ref,
@@ -350,6 +354,9 @@ const {
   hoverLayerCollapsed,
   hoverLayerStyle,
   toggleHoverLayerCollapse,
+  handleHoverLayerEnter,
+  handleHoverLayerLeave,
+  hoverOptionZIndex,
   handleScroll,
   isScrolling,
   rediscoverHoverAfterScroll,
@@ -792,8 +799,6 @@ function handleRowsRendered(params: { rowCacheStart: number, rowCacheEnd: number
   emit('rowsRendered', params)
 }
 
-const hoverOptionZIndex = computed(() => getHoverOptionZIndex(props.columns))
-
 // <zh/> 容器宽度回灌——useElementSize 观察外层 div，列溢出检测依赖它。
 // <zh/> 与 use-virtual-renderer 内的主体层 observer 分工不同，二者不可合并（详见该文件说明）。
 // <en/> Container width back-fill — useElementSize observes the outer div; overflow detection depends on it.
@@ -946,20 +951,6 @@ watch(measuredWidth, (containerWidth) => {
       class="adv-table-virtual-renderer__column-resize-proxy"
     />
 
-    <RowActionBar
-      v-if="showTeleportHover"
-      :visible="hoverLayerVisible && !!hoverRowData"
-      :collapsed="hoverLayerCollapsed"
-      :hover-option-columns="hoverOptionColumns"
-      :row="(hoverRowData ?? EMPTY_ROW) as Record<string, unknown>"
-      :row-index="hoverRowIndex >= 0 ? hoverRowIndex : 0"
-      is-teleport
-      :row-rect="teleportRowRect"
-      :z-index="hoverOptionZIndex"
-      :is-scrolling="isScrolling"
-      @mouseenter="handleHoverLayerEnter"
-      @mouseleave="handleHoverLayerLeave"
-      @force-hide="handleForceHide"
-    />
+    <HoverTeleportOverlay />
   </div>
 </template>

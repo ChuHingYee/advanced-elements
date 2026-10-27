@@ -364,15 +364,16 @@ export interface RowExpandApi {
 /**
  * <zh/> RowViewModel 的 provide/inject 接口。
  *
- * <zh/> 预计算每行装饰态（isEditing/isDirty/isRangeSelected），
- * <zh/> 通过 provide 注入渲染器，插槽通过 rowKey 获取引用稳定的 cellState。
- * <zh/> 装饰态变化不再污染 ElTable render effect。
+ * <zh/> 预计算每行装饰态（isEditing/isDirty/isRangeSelected），通过 provide 注入渲染器。
+ * <zh/> 单元格必须经 getCellsRefByRowKey 读取本行 ref——订阅粒度即渲染粒度：
+ * <zh/> 直接读整表 Map 会让每个单元格在任意一行变化时重渲染（范围拖拽曾因此全表重渲）。
  *
  * <en/> RowViewModel provide/inject interface.
  *
- * <en/> Pre-compute each row's decoration state (isEditing/isDirty/isRangeSelected),
- * <en/> inject into renderer via provide, slots obtain reference-stable cellState via rowKey.
- * <en/> Decoration state changes no longer pollute ElTable render effect.
+ * <en/> Pre-compute each row's decoration state (isEditing/isDirty/isRangeSelected) and inject it
+ * <en/> into renderers. Cells MUST read their own row ref via getCellsRefByRowKey — subscription
+ * <en/> granularity equals render granularity: reading the whole-table Map makes every cell re-render
+ * <en/> whenever any row changes (range dragging used to re-render the whole table this way).
  */
 export interface RowViewModelContext {
   /**
@@ -382,8 +383,16 @@ export interface RowViewModelContext {
    * <en/> Typed as ComputedRef — exposes the computed directly, avoiding the watch + shallowRef bridge anti-pattern
    */
   rowViewModels: ComputedRef<import('../composables/view-model/use-row-view-model').RowViewModel[]>
-  /** <zh/> 按行 key 查找 cellState 数组——O(1) 访问 | <en/> Look up the cellState array by row key — O(1) access */
-  getCellsByRowKey: (rowKey: string) => readonly import('../composables/view-model/use-row-view-model').CellState[] | undefined
+  /**
+   * <zh/> 按行取 cells 的稳定 ref——单元格只订阅本行
+   * <zh/> 必须返回 shallowRef 而非常规 computed：computed 在任一依赖变化时就通知下游，
+   * <zh/> shallowRef 仅在引用变化时触发，故未受影响行（cells 引用复用）不会重渲染。
+   * <en/> Reference-stable per-row cells ref — a cell subscribes to its own row only.
+   * <en/> Must be a shallowRef, not a computed: computed notifies subscribers on any dependency
+   * <en/> change, while shallowRef triggers only when the value reference changes, so unaffected
+   * <en/> rows (whose cells reference is reused) never re-render.
+   */
+  getCellsRefByRowKey: (rowKey: string) => ShallowRef<readonly import('../composables/view-model/use-row-view-model').CellState[] | undefined>
 }
 
 /**

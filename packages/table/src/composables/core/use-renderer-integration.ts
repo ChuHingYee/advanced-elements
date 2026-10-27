@@ -35,7 +35,6 @@ import {
   advTableIsRowDraggingKey,
   advTableKey,
   advTablePerformanceProfileKey,
-  advTableRangeSelectionKey,
   advTableRowExpandKey,
   advTableRowGroupKey,
   advTableRowPinKey,
@@ -243,12 +242,6 @@ function createAndProvideContext<T>(
   // <en/> THE single currentRow source — owned by the selection orchestrator.
   provide(advTableCurrentRowKey, selection.currentRowRef)
   provide(advTablePerformanceProfileKey, performanceProfile)
-  provide(advTableRangeSelectionKey, markRawTyped({
-    isSelecting: interaction.isRangeSelecting,
-    currentRange: interaction.rangeSelectionRange,
-    isCellSelected: interaction.isCellInRangeSelection,
-    // 范围选择 provide 形态与注入键声明不一致：上游补齐官方类型后收紧为精确类型并移除 as any
-  }) as any)
   // <zh/> 行拖拽状态直传（同一 shallowRef 引用）——虚拟渲染器据此暂停失步看门狗
   // <en/> Row-drag state passed through (same shallowRef reference).
   provide(advTableIsRowDraggingKey, interaction.isRowDragging)

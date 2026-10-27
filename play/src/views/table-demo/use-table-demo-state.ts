@@ -215,7 +215,7 @@ export function useTableDemoState() {
       { prop: 'department', type: 'select' as const, componentProps: { placeholder: '请选择部门', clearable: true, options: DEPARTMENTS.map(d => ({ label: d, value: d })) }, itemProps: { label: '部门' } },
     ],
   }
-  const megaPagination = { enabled: true, pageSize: 20, pageSizes: [10, 20, 50, 100], background: true }
+  const megaPagination = { enabled: true, mode: 'client' as const, pageSize: 20, pageSizes: [10, 20, 50, 100], background: true }
   const megaUrlState = { enabled: false, pageKey: 'mega_p', sizeKey: 'mega_s' }
   const megaExternalFilter = {
     isExternalFilterPresent: () => megaExtFilterOn.value,
@@ -244,7 +244,17 @@ export function useTableDemoState() {
   )
   // <zh/> spanMethod 优先于 spanConfig；返回 undefined 回退内部自动合并逻辑 <en/> spanMethod takes precedence over spanConfig; returning undefined falls back to the built-in auto-merge logic
   const megaSpanMethod = () => undefined
-  const megaTreeConfig = { children: 'children', defaultExpandAll: true, indent: 20 }
+  // <zh/> treeConfig 仅在树形数据集下绑定——`treeEnabled = treeConfig != null`，常驻绑定会让
+  // <zh/> 扁平/展开数据集的所有行被当作树叶节点：首列渲染占位图标、行展开图标被 `!treeEnabled`
+  // <zh/> 守卫抑制，展开行功能静默失效（占位图标不可点）。与 rowGroupConfig/spanConfig 同口径按数据集门控。
+  // <en/> treeConfig is bound only for the tree dataset — `treeEnabled = treeConfig != null`, so an
+  // <en/> always-on binding treats every flat/expand row as a tree leaf: the first column renders
+  // <en/> placeholder icons and the row-expand icon is suppressed by the `!treeEnabled` guard,
+  // <en/> silently disabling expand rows (placeholders are not clickable). Gated by dataset kind,
+  // <en/> same caliber as rowGroupConfig/spanConfig.
+  const megaTreeConfig = computed(() =>
+    megaDatasetKind.value === 'tree' ? { children: 'children', defaultExpandAll: true, indent: 20 } : undefined,
+  )
   const megaRowGroupConfig = computed(() =>
     megaRowGroupOn.value && megaDatasetKind.value === 'flat'
       ? { field: 'department', defaultExpandAll: true }
@@ -421,7 +431,7 @@ export function useTableDemoState() {
     menuConfig: megaMenuConfig.value,
     rangeSelection: megaRangeSelection.value,
     interceptor: megaInterceptor,
-    treeConfig: megaTreeConfig,
+    treeConfig: megaTreeConfig.value,
     rowGroupConfig: megaRowGroupConfig.value,
     rowExpandConfig: megaRowExpandConfig.value,
     rowPinConfig: megaRowPinConfig.value,

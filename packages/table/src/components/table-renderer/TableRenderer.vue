@@ -12,6 +12,7 @@
 import type { TableInstance } from 'element-plus'
 import type { UseSelectionStateReturn } from '../../composables/selection/use-selection-state'
 import type { ProcessedColumn } from '../../types/column'
+import type { TableHoverTeleportOverlayApi } from '../../types/config-api'
 import type { DefaultRendererProps } from '../../types/renderer'
 import type { RendererEmitsMap } from '../../types/renderer-emits'
 import type { ITableRenderer } from '../../types/renderer-interface'
@@ -39,11 +40,11 @@ import { devWarn } from '../../utils/dev-warn'
 import { createRowEventHandlers } from '../../utils/event-handlers'
 import { clampRowToContainer, getBodyContainerRect } from '../../utils/hover-locator'
 import { rowKeyAttrSelector } from '../../utils/row-key-attr'
-import { EMPTY_ROW, getColumnKey, getHoverOptionZIndex, resolveColumnProp } from '../../utils/shared'
+import { getColumnKey, getHoverOptionZIndex, resolveColumnProp } from '../../utils/shared'
 import { ADV_TABLE_COLUMN_KEY_ATTR, ADV_TABLE_ROW_KEY_ATTR } from '../../utils/table-drag'
 import { isGrandTotalRow, isGroupTotalRow } from '../../utils/total-rows'
 
-import RowActionBar from '../cell-renderers/row-action-bar.vue'
+import HoverTeleportOverlay from '../cell-renderers/hover-teleport-overlay.vue'
 
 import { isTeleportHoverColumn } from '../renderer-core/column-build-shared'
 import { EL_TABLE_DISABLED_TREE_PROPS } from '../renderer-core/el-table-tree-isolation'
@@ -537,7 +538,6 @@ defineExpose({ ...rendererExpose, scrollToRow, scrollToColumn, getInteractionDom
 
 const {
   teleportRowRect,
-  showTeleportHover,
   shouldUseTeleport,
   wrappedHandleScroll: originalWrappedHandleScroll,
   handleForceHide,
@@ -593,6 +593,24 @@ function wrappedHandleScroll(params: { scrollLeft: number, scrollTop?: number })
   emit('scroll', { scrollLeft: params.scrollLeft, scrollTop: params.scrollTop ?? 0 })
 }
 
+/**
+ * <zh/> teleport 操作条渲染域——ref 只交给 HoverTeleportOverlay 消费，禁止在本渲染器模板内读取，
+ * <zh/> 否则每次跨行/滚动帧都会重渲染整表（ElTable 插槽重建 → ElTableBody 全量 renderRow）。
+ * <en/> Teleport bar render domain — the refs are consumed only by HoverTeleportOverlay and must NOT be
+ * <en/> read in this renderer's template, or every row crossing/scroll frame re-renders the whole table
+ * <en/> (ElTable slot rebuild → full ElTableBody renderRow).
+ */
+const teleportOverlay: TableHoverTeleportOverlayApi = {
+  hoverRowData,
+  hoverRowIndex,
+  rowRect: teleportRowRect,
+  isScrolling,
+  zIndex: computed(() => getHoverOptionZIndex(props.columns)),
+  onEnter: handleHoverLayerEnter,
+  onLeave: handleHoverLayerLeave,
+  onForceHide: handleForceHide,
+}
+
 useHoverLayerProvider({
   api: {
     hoverRowKey,
@@ -603,6 +621,7 @@ useHoverLayerProvider({
     hoverOptionTeleport,
     shouldUseTeleport,
     onToggleCollapse: toggleHoverLayerCollapse,
+    teleportOverlay,
     scrollBody: (dx, dy) => {
       const el = tableRef.value?.$el as HTMLElement | undefined
       if (!el)
@@ -693,8 +712,6 @@ const computedSlots = computed<Record<string, any>>((prev) => {
 })
 
 const { t } = useRendererLocale(props.t)
-
-const hoverOptionZIndex = computed(() => getHoverOptionZIndex(props.columns))
 
 /**
  * <zh/> 合并单元格策略 — 展开行/分组头行的 span 和类名逻辑统一由 useSpanStrategy 管理
@@ -828,20 +845,6 @@ function totalAwareRowClassName(params: { row: any, rowIndex: number }): string 
       </template>
     </ElTable>
 
-    <RowActionBar
-      v-if="showTeleportHover"
-      :visible="hoverLayerVisible && !!hoverRowData"
-      :collapsed="hoverLayerCollapsed"
-      :hover-option-columns="hoverOptionColumns"
-      :row="hoverRowData ?? EMPTY_ROW"
-      :row-index="hoverRowIndex >= 0 ? hoverRowIndex : 0"
-      is-teleport
-      :row-rect="teleportRowRect"
-      :z-index="hoverOptionZIndex"
-      :is-scrolling="isScrolling"
-      @mouseenter="handleHoverLayerEnter"
-      @mouseleave="handleHoverLayerLeave"
-      @force-hide="handleForceHide"
-    />
+    <HoverTeleportOverlay />
   </div>
 </template>

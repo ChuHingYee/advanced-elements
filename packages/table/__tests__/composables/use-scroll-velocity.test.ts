@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
  * @file useScrollVelocity 测试 — 覆盖动态 cache 计算、滞回区间、速度追踪、生命周期清理
  *
  * 覆盖点：
- * - dynamicCache 三档（base/medium/high）及 Math.max 边界逻辑
+ * - dynamicCache 三档（base/medium/high）档位偏移（+0/+2/+4）逻辑
  * - 滞回区间（hysteresis）升级/降级逻辑
  * - trackScrollVelocity 速度计算、衰减、空闲定时器
  * - resetVelocity 状态重置
@@ -66,34 +66,34 @@ describe('useScrollVelocity — dynamicCache', () => {
     expect(dynamicCache.value).toBe(8)
   })
 
-  it('high tier returns Math.max(16, base + 10) — fix for base > 6 compression', async () => {
+  it('high tier returns base + 4 (boost scales with base)', async () => {
     const { trackScrollVelocity, dynamicCache } = useScrollVelocity(() => 20)
     perf.set(1000)
     trackScrollVelocity(0)
     perf.set(1001) // dt=1, delta=100 → speed=100 > 3 → high
     trackScrollVelocity(100)
     await nextTick()
-    expect(dynamicCache.value).toBe(Math.max(16, 20 + 10))
+    expect(dynamicCache.value).toBe(20 + 4)
   })
 
-  it('high tier returns at least 16 when base is small', async () => {
+  it('high tier returns base + 4 when base is small', async () => {
     const { trackScrollVelocity, dynamicCache } = useScrollVelocity(() => 2)
     perf.set(1000)
     trackScrollVelocity(0)
     perf.set(1001)
     trackScrollVelocity(100)
     await nextTick()
-    expect(dynamicCache.value).toBe(Math.max(16, 2 + 10))
+    expect(dynamicCache.value).toBe(2 + 4)
   })
 
-  it('medium tier returns Math.max(10, base + 5)', async () => {
+  it('medium tier returns base + 2', async () => {
     const { trackScrollVelocity, dynamicCache } = useScrollVelocity(() => 8)
     perf.set(1000)
     trackScrollVelocity(0)
     perf.set(1010) // dt=10, delta=20 → speed=2 (>1.5, <=3) → medium
     trackScrollVelocity(20)
     await nextTick()
-    expect(dynamicCache.value).toBe(Math.max(10, 8 + 5))
+    expect(dynamicCache.value).toBe(8 + 2)
   })
 
   it('accepts ref baseCache', () => {
@@ -133,37 +133,37 @@ describe('useScrollVelocity — hysteresis', () => {
   it('upgrades base → medium when velocity > 1.5', async () => {
     const { trackScrollVelocity, dynamicCache } = useScrollVelocity(() => 8)
     await driveTo(trackScrollVelocity, 20, 10) // speed=2 > 1.5
-    expect(dynamicCache.value).toBe(Math.max(10, 8 + 5))
+    expect(dynamicCache.value).toBe(8 + 2)
   })
 
   it('upgrades base → high when velocity > 3', async () => {
     const { trackScrollVelocity, dynamicCache } = useScrollVelocity(() => 8)
     await driveTo(trackScrollVelocity, 100, 10) // speed=10 > 3
-    expect(dynamicCache.value).toBe(Math.max(16, 8 + 10))
+    expect(dynamicCache.value).toBe(8 + 4)
   })
 
   it('upgrades medium → high when velocity > 3', async () => {
     const { trackScrollVelocity, dynamicCache } = useScrollVelocity(() => 8)
     await driveTo(trackScrollVelocity, 20, 10) // speed=2 → medium
-    expect(dynamicCache.value).toBe(Math.max(10, 8 + 5))
+    expect(dynamicCache.value).toBe(8 + 2)
     await driveTo(trackScrollVelocity, 100, 10) // speed=10 → high
-    expect(dynamicCache.value).toBe(Math.max(16, 8 + 10))
+    expect(dynamicCache.value).toBe(8 + 4)
   })
 
   it('downgrades high → medium when velocity <= 2 (hysteresis)', async () => {
     const { trackScrollVelocity, dynamicCache } = useScrollVelocity(() => 8)
     await driveTo(trackScrollVelocity, 100, 10) // speed=10 → high
-    expect(dynamicCache.value).toBe(Math.max(16, 8 + 10))
+    expect(dynamicCache.value).toBe(8 + 4)
     // Idle 120ms → velocity resets to 0 → 0 <= 2 → downgrade to medium
     vi.advanceTimersByTime(121)
     await nextTick()
-    expect(dynamicCache.value).toBe(Math.max(10, 8 + 5))
+    expect(dynamicCache.value).toBe(8 + 2)
   })
 
   it('downgrades medium → base when velocity <= 0.5 (hysteresis)', async () => {
     const { trackScrollVelocity, dynamicCache } = useScrollVelocity(() => 8)
     await driveTo(trackScrollVelocity, 20, 10) // speed=2 → medium
-    expect(dynamicCache.value).toBe(Math.max(10, 8 + 5))
+    expect(dynamicCache.value).toBe(8 + 2)
     // Idle 120ms → velocity resets to 0 → 0 <= 0.5 → downgrade to base
     vi.advanceTimersByTime(121)
     await nextTick()
@@ -179,7 +179,7 @@ describe('useScrollVelocity — hysteresis', () => {
     perf.set(2010)
     trackScrollVelocity(10) // speed=1.0
     await nextTick()
-    expect(dynamicCache.value).toBe(Math.max(10, 8 + 5))
+    expect(dynamicCache.value).toBe(8 + 2)
   })
 
   it('hysteresis: high stays high when velocity between 2 and 3', async () => {
@@ -191,7 +191,7 @@ describe('useScrollVelocity — hysteresis', () => {
     perf.set(2010)
     trackScrollVelocity(25) // speed=2.5
     await nextTick()
-    expect(dynamicCache.value).toBe(Math.max(16, 8 + 10))
+    expect(dynamicCache.value).toBe(8 + 4)
   })
 })
 
@@ -214,7 +214,7 @@ describe('useScrollVelocity — trackScrollVelocity', () => {
     perf.set(1010)
     trackScrollVelocity(20) // speed=2 → medium
     await nextTick()
-    expect(dynamicCache.value).toBe(Math.max(10, 8 + 5))
+    expect(dynamicCache.value).toBe(8 + 2)
 
     resetVelocity()
     // After reset, scrollVelocity=0; new scroll: speed=max(0.5/10, 0*0.6)=0.05 → stays base
@@ -243,12 +243,12 @@ describe('useScrollVelocity — trackScrollVelocity', () => {
     perf.set(1001)
     trackScrollVelocity(100) // speed=100 → high
     await nextTick()
-    expect(dynamicCache.value).toBe(Math.max(16, 8 + 10))
+    expect(dynamicCache.value).toBe(8 + 4)
 
     // After 120ms idle, setTimeout callback fires → scrollVelocity=0 → watch: 0 <= 2 → medium
     vi.advanceTimersByTime(121)
     await nextTick()
-    expect(dynamicCache.value).toBe(Math.max(10, 8 + 5))
+    expect(dynamicCache.value).toBe(8 + 2)
 
     resetVelocity()
   })
@@ -260,7 +260,7 @@ describe('useScrollVelocity — trackScrollVelocity', () => {
     perf.set(1010)
     trackScrollVelocity(100) // speed=10 → high
     await nextTick()
-    expect(dynamicCache.value).toBe(Math.max(16, 8 + 10))
+    expect(dynamicCache.value).toBe(8 + 4)
 
     // Advance 100ms (< 120ms, timer pending), then scroll again (clears old timer, sets new one)
     vi.advanceTimersByTime(100)
@@ -271,12 +271,12 @@ describe('useScrollVelocity — trackScrollVelocity', () => {
     vi.advanceTimersByTime(100)
     await nextTick()
     // velocity should NOT have reset (new timer hasn't expired)
-    expect(dynamicCache.value).toBe(Math.max(16, 8 + 10))
+    expect(dynamicCache.value).toBe(8 + 4)
 
     // Advance past 120ms from last scroll → velocity resets → downgrade
     vi.advanceTimersByTime(25)
     await nextTick()
-    expect(dynamicCache.value).toBe(Math.max(10, 8 + 5))
+    expect(dynamicCache.value).toBe(8 + 2)
   })
 })
 
@@ -297,7 +297,7 @@ describe('useScrollVelocity — resetVelocity', () => {
     perf.set(1001)
     trackScrollVelocity(100) // high
     await nextTick()
-    expect(dynamicCache.value).toBe(Math.max(16, 8 + 10))
+    expect(dynamicCache.value).toBe(8 + 4)
 
     resetVelocity()
     expect(dynamicCache.value).toBe(8) // back to base
@@ -334,7 +334,7 @@ describe('useScrollVelocity — lifecycle cleanup', () => {
     perf.set(1001)
     vm.trackScrollVelocity(100) // speed=100 → high
     await nextTick()
-    expect(dynamicCacheRef.value).toBe(Math.max(16, 8 + 10))
+    expect(dynamicCacheRef.value).toBe(8 + 4)
 
     wrapper.unmount()
     // Advance past idle timeout — timer was cleared, no error
@@ -373,7 +373,7 @@ describe('useScrollVelocity — lifecycle cleanup', () => {
     perf.set(1001)
     vm.trackScrollVelocity(100) // speed=100 → high
     await nextTick()
-    expect(vm.dynamicCache).toBe(Math.max(16, 8 + 10))
+    expect(vm.dynamicCache).toBe(8 + 4)
 
     // Deactivate → onDeactivated calls resetVelocity
     show.value = false

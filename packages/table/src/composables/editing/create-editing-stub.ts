@@ -12,7 +12,7 @@
  * <en/> reclaimed when `editConfig` disappears again. Return values delegate via closures and degrade
  * <en/> to noop/constants while absent.
  */
-import type { ComputedRef, EffectScope, Ref } from 'vue'
+import type { ComputedRef, EffectScope, Ref, ShallowRef } from 'vue'
 import type { ProcessedColumn } from '../../types'
 import type { ValidateError } from '../../types/edit'
 import type { CellState, RowViewModel } from '../view-model/use-row-view-model'
@@ -176,13 +176,46 @@ export function createEditingAdapter<T>(
   const rowViewModelMapRef = shallowRef(stubRowViewModelMap.value)
 
   /**
+   * <zh/> 行级 cells ref 注册表——单元格只订阅本行，未受影响行的 cells 引用不变即不触发重渲染。
+   * <zh/> 惰性创建：仅被渲染到的行才分配 ref，虚拟滚动不随数据总量增长；行从 Map 消失时同步清理。
+   * <zh/> 播种读普通镜像 currentRowViewModelMap——此处若读 rowViewModelMapRef 会把单元格重新订阅回整表。
+   *
+   * <en/> Per-row cells ref registry — a cell subscribes to its own row only; unaffected rows keep their
+   * <en/> cells reference and therefore never re-render. Refs are created lazily for rendered rows only,
+   * <en/> so virtual scrolling does not grow with the dataset; entries are pruned once a row leaves the Map.
+   * <en/> Seeding reads the plain mirror currentRowViewModelMap — reading rowViewModelMapRef here would
+   * <en/> re-subscribe cells to the whole table.
+   */
+  const cellsRefByRowKey = new Map<string, ShallowRef<readonly CellState[] | undefined>>()
+  let currentRowViewModelMap: Map<string, readonly CellState[]> = rowViewModelMapRef.value
+
+  /**
+   * <zh/> 写入 Map 并同步行级 ref——引用未变的行不赋值，shallowRef 的 hasChanged 判定保证其单元格不被唤醒
+   * <en/> Write the Map and sync per-row refs — unchanged references are skipped, so shallowRef's
+   * <en/> hasChanged check keeps those cells off the render queue
+   */
+  function setRowViewModelMap(map: Map<string, readonly CellState[]>) {
+    currentRowViewModelMap = map
+    rowViewModelMapRef.value = map
+    for (const [key, ref] of cellsRefByRowKey) {
+      if (!map.has(key)) {
+        cellsRefByRowKey.delete(key)
+        continue
+      }
+      const next = map.get(key)
+      if (ref.value !== next)
+        ref.value = next
+    }
+  }
+
+  /**
    * <zh/> 同步桥接值——加载完成/切换时把真实链状态写入桥接 ref
    * <en/> Sync bridge values — write real-chain state into bridge refs on load/toggle
    */
   function syncBridgeValues(result: NonNullable<typeof realResult.value>): void {
     errorsRef.value = result.validateApi.errors.value
     rowViewModelsRef.value = result.tableRowViewModels.value
-    rowViewModelMapRef.value = result.rowViewModelMap.value
+    setRowViewModelMap(result.rowViewModelMap.value)
     rendererDataRef.value = result.rendererData.value
   }
 
@@ -209,7 +242,7 @@ export function createEditingAdapter<T>(
       disposeEditingChain()
       errorsRef.value = EMPTY_ERRORS_ARR
       rowViewModelsRef.value = stubRowViewModels.value
-      rowViewModelMapRef.value = stubRowViewModelMap.value
+      setRowViewModelMap(stubRowViewModelMap.value)
       rendererDataRef.value = renderData.value
     }
   }, { flush: 'post' })
@@ -229,7 +262,7 @@ export function createEditingAdapter<T>(
       if (hasEditConfig.value && realResult.value && errors && vms && map) {
         errorsRef.value = errors
         rowViewModelsRef.value = vms
-        rowViewModelMapRef.value = map
+        setRowViewModelMap(map)
         // <zh/> renderData 可能为 undefined（渲染数据未生成），保留上一帧值 | <en/> renderData may be undefined (render data not yet produced), keep the previous value
         if (renderData)
           rendererDataRef.value = renderData
@@ -257,7 +290,7 @@ export function createEditingAdapter<T>(
     (pair) => {
       if (pair && !hasEditConfig.value) {
         rowViewModelsRef.value = pair[0]
-        rowViewModelMapRef.value = pair[1]
+        setRowViewModelMap(pair[1])
       }
     },
     { flush: 'post' },
@@ -266,7 +299,18 @@ export function createEditingAdapter<T>(
   provide(advTableValidateErrorsKey, errorsRef)
   provide(advTableRowViewModelKey, {
     rowViewModels: computed(() => rowViewModelsRef.value),
-    getCellsByRowKey: (rowKey: string | number) => rowViewModelMapRef.value.get(String(rowKey)),
+    // <zh/> 首渲染的行在此惰性登记 ref（只写普通 Map，不触发响应式）；后续变化经 setRowViewModelMap 按行同步
+    // <en/> A row rendered for the first time registers its ref lazily here (plain Map write, no reactivity);
+    // <en/> later changes are synced per row via setRowViewModelMap
+    getCellsRefByRowKey: (rowKey: string | number) => {
+      const key = String(rowKey)
+      let ref = cellsRefByRowKey.get(key)
+      if (!ref) {
+        ref = shallowRef(currentRowViewModelMap.get(key))
+        cellsRefByRowKey.set(key, ref)
+      }
+      return ref
+    },
   })
 
   /**
