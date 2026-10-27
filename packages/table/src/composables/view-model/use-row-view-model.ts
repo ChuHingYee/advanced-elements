@@ -26,14 +26,13 @@ function isSyntheticRow(row: unknown): boolean {
  * <en/> Cell decoration state — reference-stable immutable object
  *
  * @remarks
- * <zh/> 设计原理：
- * <zh/> 装饰态通过 RowViewModel 预计算，以 props 传入 AdvTableCell 组件。
- * <zh/> Vue 的 shouldUpdateComponent 对 cellState 做浅比较——引用未变时跳过该 cell 重渲染。
- * <zh/> 这样装饰态变化不再污染 ElTable 的 render effect，符合 Vue 数据驱动原则
- * <en/> Design principle:
- * <en/> Decoration state is pre-computed via RowViewModel and passed to AdvTableCell via props.
- * <en/> Vue's shouldUpdateComponent does shallow comparison on cellState — skips cell re-render when reference unchanged.
- * <en/> This way, decoration state changes no longer pollute ElTable's render effect, following Vue's data-driven principle
+ * <zh/> 订阅契约：每行 cells 数组封装为 shallowRef，经 RowViewModelContext 提供；
+ * <zh/> 单元格 render effect 只读本行 ref，重渲染范围收敛到 cells 引用变化的行。
+ * <zh/> 引用未变的行不赋值也不触发，因此未受影响行零重渲染。
+ * <en/> Subscription contract: each row's cells array is exposed as a shallowRef through
+ * <en/> RowViewModelContext; a cell's render effect reads only its own row ref, so re-rendering is
+ * <en/> limited to rows whose cells reference changed. Unchanged rows are neither assigned nor
+ * <en/> triggered and therefore never re-render.
  *
  * <zh/> 引用稳定性保证：
  * <zh/> - RowViewModel.cells 数组在行状态未变时复用上一次的引用

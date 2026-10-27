@@ -2,7 +2,7 @@ import type { ComputedRef, CSSProperties, Ref, ShallowRef } from 'vue'
 import type { ProcessedColumn } from './column'
 import type { CellEditStopReason, EditingCellState } from './edit'
 import type { ColumnFilterValue } from './filter'
-import type { RowKeyMeta } from './row-rect'
+import type { RowKeyMeta, RowRect } from './row-rect'
 import type { SortOrder } from './sort'
 
 /** <zh/> 通用无返回值回调签名，用于各类状态变更钩子 | <en/> Generic void-returning callback signature, used by various state-change hooks */
@@ -173,18 +173,34 @@ export interface TableHoverLayerApi {
    * <en/> and the caller should fall back to the browser's default scroll behavior.
    */
   scrollBody?: (dx: number, dy: number) => boolean
+  /**
+   * <zh/> Teleport 悬浮操作条的独立渲染域——渲染器只装配该对象，ref 由 overlay 组件在自己的 render 内读取，
+   * <zh/> 避免 hover 状态进入渲染器 render effect 触发全表（默认模式全部行 × 列）重渲染。
+   * <en/> Standalone render domain of the teleported hover action bar — renderers only assemble this object;
+   * <en/> the overlay component reads the refs inside its own render effect, keeping hover state out of the
+   * <en/> renderer's render effect (which would otherwise re-render every row × column in default mode).
+   */
+  teleportOverlay?: TableHoverTeleportOverlayApi
 }
 
-/**
- * <zh/> 范围选择 API — 通过 provide/inject 提供，
- * <zh/> 管理单元格范围选择的起始/结束行列及选中状态判断
- * <en/> Range selection API — provided via provide/inject,
- * <en/> manages the start/end row-column of cell range selection and selected-state checks
- */
-export interface TableRangeSelectionApi {
-  isSelecting: Ref<boolean>
-  currentRange: ComputedRef<{ startRow: number, endRow: number, startCol: number, endCol: number } | null>
-  isCellSelected: (rowIndex: number, columnIndex: number) => boolean
+/** <zh/> Teleport 悬浮操作条渲染域 | <en/> Teleport hover action bar render domain */
+export interface TableHoverTeleportOverlayApi {
+  /** <zh/> 当前悬停行数据（离开延迟后置空） | <en/> Current hovered row data (nulled after the leave delay) */
+  hoverRowData: Ref<any>
+  /** <zh/> 当前悬停行索引，-1 表示无 | <en/> Current hovered row index, -1 when none */
+  hoverRowIndex: Ref<number>
+  /** <zh/> 悬停行在视口中的矩形，undefined 时操作条回到隐藏态 | <en/> Hovered row rect in viewport; undefined hides the bar */
+  rowRect: Ref<RowRect | undefined>
+  /** <zh/> 滚动中标志（操作条经 CSS visibility 隐藏） | <en/> Scrolling flag (bar hidden via CSS visibility) */
+  isScrolling: Ref<boolean>
+  /** <zh/> teleport 操作列配置的层级 | <en/> z-index configured on the teleport option column */
+  zIndex: ComputedRef<number | string | undefined>
+  /** <zh/> 鼠标进入操作条（取消离开计时） | <en/> Pointer entered the bar (cancels the leave timer) */
+  onEnter: () => void
+  /** <zh/> 鼠标离开操作条（延迟隐藏） | <en/> Pointer left the bar (delayed hide) */
+  onLeave: () => void
+  /** <zh/> 强制隐藏（滚轮转发到表格 / 中键自动滚动） | <en/> Force hide (wheel forwarded to table / middle-click auto-scroll) */
+  onForceHide: () => void
 }
 
 /** <zh/> 侧边筛选面板 API | <en/> Side filter panel API */

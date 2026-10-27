@@ -49,6 +49,17 @@ export interface UseV2HoverDeps<T = any> {
   hoverLayerStyle: ComputedRef<CSSProperties>
   /** <zh/> 折叠切换 | <en/> collapse toggle */
   toggleHoverLayerCollapse: (e: Event) => void
+  /** <zh/> 悬停层进入处理 | <en/> hover-layer enter handler */
+  handleHoverLayerEnter: () => void
+  /** <zh/> 悬停层离开处理 | <en/> hover-layer leave handler */
+  handleHoverLayerLeave: () => void
+  /**
+   * <zh/> teleport 操作条 zIndex——由渲染器按列配置派生；渲染器模板不得读取，
+   * <zh/> 仅随 teleportOverlay 交给 HoverTeleportOverlay 消费。
+   * <en/> z-index of the teleported bar, derived from column config by the renderer. The renderer
+   * <en/> template must not read it; it reaches HoverTeleportOverlay only via `teleportOverlay`.
+   */
+  hoverOptionZIndex: ComputedRef<number | string | undefined>
   /** <zh/> 滚动处理（由本域包装为 wrappedHandleScroll） | <en/> scroll handler (wrapped by this domain) */
   handleScroll: (params: { scrollLeft: number, scrollTop?: number }) => void
   /** <zh/> 是否处于滚动中 | <en/> whether scrolling */
@@ -104,6 +115,9 @@ export function useV2Hover<T = any>(deps: UseV2HoverDeps<T>): UseV2HoverReturn {
     hoverLayerCollapsed,
     hoverLayerStyle,
     toggleHoverLayerCollapse,
+    handleHoverLayerEnter,
+    handleHoverLayerLeave,
+    hoverOptionZIndex,
     handleScroll,
     isScrolling,
     rediscoverHoverAfterScroll,
@@ -176,6 +190,22 @@ export function useV2Hover<T = any>(deps: UseV2HoverDeps<T>): UseV2HoverReturn {
     hoverOptionTeleport,
     shouldUseTeleport,
     onToggleCollapse: toggleHoverLayerCollapse,
+    /**
+     * <zh/> teleport 操作条渲染域——ref 只交给 HoverTeleportOverlay 消费，渲染器模板不得读取，
+     * <zh/> 否则每次跨行/滚动帧都会重渲染整个虚拟表格。
+     * <en/> Teleport bar render domain — refs are consumed only by HoverTeleportOverlay and must not be
+     * <en/> read by the renderer template, or every row crossing/scroll frame re-renders the whole grid.
+     */
+    teleportOverlay: {
+      hoverRowData,
+      hoverRowIndex,
+      rowRect: teleportRowRect,
+      isScrolling,
+      zIndex: hoverOptionZIndex,
+      onEnter: handleHoverLayerEnter,
+      onLeave: handleHoverLayerLeave,
+      onForceHide: handleForceHide,
+    },
     scrollBody: (dx, dy) => {
       const nextLeft = currentScrollLeft.value + dx
       const nextTop = currentScrollTop.value + dy

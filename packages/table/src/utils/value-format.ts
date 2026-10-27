@@ -86,6 +86,30 @@ export function formatDate(value: unknown, valueType: string, ctx?: TableContext
 }
 
 /**
+ * <zh/> Intl.NumberFormat 实例缓存——按 locale+options 键复用实例。
+ * <zh/> toLocaleString 每格调用都会新建 Intl.NumberFormat（构造昂贵），虚拟滚动每帧重绘
+ * <zh/> 数十个 money/digit 格时累积为可观长任务；locale/options 组合极少，Map 无淘汰即可。
+ * <en/> Intl.NumberFormat instance cache — reuses instances per locale+options key.
+ * <en/> toLocaleString constructs a fresh Intl.NumberFormat per cell (expensive to build); with
+ * <en/> dozens of money/digit cells re-rendered per virtual-scroll frame it accumulates into
+ * <en/> visible long tasks. Locale/options combinations are few, so an unbounded Map suffices.
+ */
+const numberFormatCache = new Map<string, Intl.NumberFormat>()
+
+function getNumberFormat(locale: string, options?: Intl.NumberFormatOptions): Intl.NumberFormat {
+  const key = options ? `${locale}|${JSON.stringify(options)}` : locale
+  let formatter = numberFormatCache.get(key)
+  if (!formatter) {
+    formatter = new Intl.NumberFormat(locale, options)
+    numberFormatCache.set(key, formatter)
+  }
+  return formatter
+}
+
+/** <zh/> 货币小数的固定格式选项（模块级常量，键稳定且避免每格重建对象字面量） | <en/> Fixed fraction options for money (module-level constant — stable cache key, no per-cell literal) */
+const MONEY_FRACTION_OPTIONS: Intl.NumberFormatOptions = { minimumFractionDigits: 2, maximumFractionDigits: 2 }
+
+/**
  * <zh/> 格式化货币值，保留两位小数，使用上下文中指定的货币符号与 locale。
  * <en/> Format a monetary value with two decimal places, using the currency symbol and locale from context.
  *
@@ -104,7 +128,7 @@ export function formatMoney(value: unknown, ctx?: TableContext | null): string {
   if (Number.isNaN(num))
     return String(value)
   const currency = getCurrency(ctx)
-  return `${currency.symbol}${num.toLocaleString(currency.locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+  return `${currency.symbol}${getNumberFormat(currency.locale, MONEY_FRACTION_OPTIONS).format(num)}`
 }
 
 /**
@@ -146,7 +170,7 @@ export function formatDigit(value: unknown, ctx?: TableContext | null): string {
   if (Number.isNaN(num))
     return String(value)
   const currency = getCurrency(ctx)
-  return num.toLocaleString(currency.locale)
+  return getNumberFormat(currency.locale).format(num)
 }
 
 /**

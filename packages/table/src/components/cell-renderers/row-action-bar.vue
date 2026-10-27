@@ -296,6 +296,13 @@ const hiddenStyle: CSSProperties = {
   position: 'fixed',
   top: '-9999px',
   left: '-9999px',
+  /**
+   * <zh/> 基类同时声明了 right: 0；隐藏态只改 left 会令 fixed 盒子的左右边同时生效，
+   * <zh/> 宽度被拉伸为 9999px + 视口宽（实测 11439×900 的离屏盒子）。right: auto 让其按内容收缩。
+   * <en/> The base class also sets right: 0; overriding only left makes both edges apply to the fixed box,
+   * <en/> stretching its width to 9999px + viewport width (measured as an off-screen 11439×900 box). right: auto shrinks it to content.
+   */
+  right: 'auto',
   opacity: 0,
   pointerEvents: 'none',
   zIndex: -1,

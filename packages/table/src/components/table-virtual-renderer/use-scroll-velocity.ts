@@ -44,10 +44,15 @@ export function useScrollVelocity(baseCache: MaybeRefOrGetter<number>, enabled: 
   const dynamicCache = computed(() => {
     const base = toValue(baseCache)
     switch (velocityTier.value) {
-      // <zh/> 高速滚动时增大 cache 上限以减少 DOM 回收/重建
-      // <en/> Increase cache upper bound during fast scroll to reduce DOM recycle/rebuild
-      case 'high': return Math.max(16, base + 10)
-      case 'medium': return Math.max(10, base + 5)
+      // <zh/> 高速滚动时小幅增大 cache 上限以缓解前缘空白；增幅刻意压低——
+      // <zh/> cache 越大每帧保活的行 DOM 越多，富单元格场景下 patch/布局成本随 cache 线性上涨，
+      // <zh/> 过大的高档值（如 +10）会让快速滚动的长任务翻倍，比偶发空白更伤体验。
+      // <en/> Modestly increase the cache bound during fast scroll to ease leading-edge blanks;
+      // <en/> the boost is deliberately small — every extra cached row is live DOM, and with rich
+      // <en/> cell renderers patch/layout cost scales linearly with cache, so a large high-tier
+      // <en/> value (e.g. +10) doubles long tasks during fast scroll, hurting more than rare blanks.
+      case 'high': return base + 4
+      case 'medium': return base + 2
       default: return base
     }
   })

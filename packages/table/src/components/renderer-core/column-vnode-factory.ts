@@ -217,9 +217,12 @@ export function createColumnVNodeFactory(
     const rowKeyStr = String(rowKeyFn(row))
     // <zh/> cells 查找走 cellsColIndex（混合域）——v2 的 colIndex 是事件域，直接用作下标
     // <zh/> 会在存在固定列/selection 列时错位（编辑态/脏标落到错误的列）
+    // <zh/> 读本行 ref（非整表 Map）：订阅粒度即渲染粒度，未受影响行不会被唤醒
     // <en/> cells lookup uses cellsColIndex (mixed domain) — v2's colIndex is the event domain;
-    // <en/> using it directly misaligns editing/dirty states when fixed/selection columns exist
-    const cellState = apis.rowViewModelContext?.getCellsByRowKey?.(rowKeyStr)?.[params.cellsColIndex ?? colIndex]
+    // <en/> using it directly misaligns editing/dirty states when fixed/selection columns exist.
+    // <en/> Reads the per-row ref (not the whole-table Map): subscription granularity equals render
+    // <en/> granularity, so unaffected rows are never woken
+    const cellState = apis.rowViewModelContext?.getCellsRefByRowKey?.(rowKeyStr)?.value?.[params.cellsColIndex ?? colIndex]
 
     // ── Strategy 2/3 已在 rowKeyFn 之前提前返回，此处不再重复判别 ──
 
