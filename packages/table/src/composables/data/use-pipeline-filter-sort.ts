@@ -138,16 +138,8 @@ export function usePipelineFilterSort<T = any>(deps: PipelineFilterSortDeps<T>) 
     predecessorOf.set(stage, index === 0 ? null : pipelineOrder[index - 1]!)
   })
 
-  // <zh/> 各阶段输出（按 predecessor 链取值，顺序变化时自动重组；默认顺序下与历史 afterX 逐一等价）
-  // <zh/> 筛选/排序阶段逐元素稳定：rows.filter 命中集合内容不变时复用 prev 引用，只比引用的 refStable
-  // <zh/> 会让「命中集合一模一样」的新数组下发到 finalDisplayData，列宽提交等列对象抖动即整 tbody
-  // <zh/> 重渲染（实测 100 行 ≈220ms/次）；与 externalFilter/use-table-data-pipeline 的既有范式一致。
-  // <en/> Per-stage outputs chained by predecessor; identical to the historical afterX chain under the default order
-  // <en/> Filter/sort stages are element-wise stable: reuse prev when the filter hit-set content is
-  // <en/> unchanged. The reference-only refStable lets a content-identical rows.filter array reach
-  // <en/> finalDisplayData, re-rendering the whole tbody on column-object churn like width commits
-  // <en/> (measured ≈220ms per commit at 100 rows); aligns with the established externalFilter /
-  // <en/> use-table-data-pipeline pattern.
+  // <zh/> 各阶段输出（按 predecessor 链取值，顺序变化时自动重组；默认顺序下与历史 afterX 逐一等价） | <en/> Per-stage outputs chained by predecessor; identical to the historical afterX chain under the default order
+  // <zh/> 逐元素稳定：rows.filter 命中集合内容不变时复用 prev 引用；仅比引用会让内容相同的新数组仍下发到 finalDisplayData，列宽提交等列对象抖动即整 tbody 重渲染（实测 100 行 ≈220ms/次），与 externalFilter/use-table-data-pipeline 的既有范式一致 | <en/> Element-wise stable: reuse prev when the filter hit-set content is unchanged; the reference-only refStable still lets a content-identical array reach finalDisplayData, re-rendering the whole tbody on column churn like width commits (≈220ms per commit at 100 rows); matches the established externalFilter / use-table-data-pipeline pattern.
   const columnFilterOutput = computed<T[]>(prev => shallowArrayStable(prev, filterFilteredData.value.isFiltered
     ? filterFilteredData.value.data
     : predecessorData('columnFilter')))
